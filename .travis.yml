@@ -73,9 +73,10 @@ after_success:
 # ***packaging for releases***
   - mkdir "dist"
   # create a tar.gz in dist/, containing the Qt distribution
-  - echo "creating
+  - echo "creating archive $TRAVIS_BUILD_DIR/dist/Qt""$QT_VER""_lgpl_minimal.tar.gz from $QT_DIR"
   - tar czvf "$TRAVIS_BUILD_DIR/dist/Qt""$QT_VER"_lgpl_minimal.tar.gz $QT_DIR
   # create a tar.gz in dist/, containing the PyQt distribution
+  - echo "creating archive $TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz from $PYQT_DIR"
   - tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz $PYQT_DIR
 #
 #  # ***documentation***
