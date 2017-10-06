@@ -43,11 +43,10 @@ install:
   - cd "$TRAVIS_BUILD_DIR"
   - export QT_DIR="$TRAVIS_BUILD_DIR/Qt$QT_VER"; echo $QT_DIR
   # only build qt if needed (no cached version yet)
-  - ls $QT_DIR
-  - ls $QT_DIR/lib
   # warning NO QUOTES in the test
   - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder $QT_DIR";
+      ls $QT_DIR/lib;
     else
       echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
       source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
@@ -57,7 +56,7 @@ install:
 script:
   # ********* Compile PyQt ***********
   - cd "$TRAVIS_BUILD_DIR"
-  - export PYQT_DIR="$TRAVIS_BUILD_DIR/PyQt$PYQT_VER"; echo $PYQT_DIR
+  - export PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER; echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
   - if [ ! -d "$PYQT_DIR/Makefile" ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";

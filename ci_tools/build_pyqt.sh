@@ -13,11 +13,12 @@ export PYQT_SRC_URL="https://sourceforge.net/projects/pyqt/files/PyQt$PYQT_VER_M
 
 cd "$TRAVIS_BUILD_DIR"
 echo "(a) Downloading PyQt sources from $PYQT_SRC_URL in $PWD"
-wget $PYQT_SRC_URL --no-check-certificate -O $PYQT_ARCHIVE.tar.gz  # -q
+wget -q $PYQT_SRC_URL --no-check-certificate -O $PYQT_ARCHIVE.tar.gz
 
 echo "(b) Unzipping PyQt sources in $PWD"
-tar -xvf $PYQT_ARCHIVE.tar.gz  # >/dev/null
-mv $PYQT_ARCHIVE $PYQT_DIR
+tar -xvf $PYQT_ARCHIVE.tar.gz >/dev/null
+ls -la
+mv $TRAVIS_BUILD_DIR/$PYQT_ARCHIVE $PYQT_DIR
 
 echo "(c) Installing PyQt dependencies "
 # from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
