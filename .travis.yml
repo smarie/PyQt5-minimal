@@ -74,10 +74,10 @@ after_success:
   - mkdir "$TRAVIS_BUILD_DIR/dist"
   # create a tar.gz in dist/, containing the Qt distribution
   - echo "creating archive $TRAVIS_BUILD_DIR/dist/Qt""$QT_VER""_lgpl_minimal.tar.gz from $QT_DIR"
-  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/Qt""$QT_VER"_lgpl_minimal.tar.gz $QT_DIR
+  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/Qt""$QT_VER"_lgpl_minimal.tar.gz $QT_DIR >/dev/null
   # create a tar.gz in dist/, containing the PyQt distribution
-  - echo "creating archive $TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz from $PYQT_DIR"
-  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz $PYQT_DIR
+  - echo "creating archive $TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER""_gpl_minimal.tar.gz from $PYQT_DIR"
+  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz $PYQT_DIR >/dev/null
 #
 #  # ***documentation***
 #  - mkdocs build -f docs/mkdocs.yml
