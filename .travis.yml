@@ -65,7 +65,7 @@ script:
   - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
 
 after_success:
-  # ***packaging for releases***
+# ***packaging for releases***
   - mkdir "dist"
   # create a tar.gz in dist/, containing the Qt distribution
   - tar -cvf "$TRAVIS_BUILD_DIR/dist/Qt$QT_VER_lgpl_minimal.tar.gz" "$QT_DIR"
