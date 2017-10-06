@@ -13,10 +13,10 @@ export PYQT_SRC_URL="https://sourceforge.net/projects/pyqt/files/PyQt$PYQT_VER_M
 
 cd "$TRAVIS_BUILD_DIR"
 echo "(a) Downloading PyQt sources from $PYQT_SRC_URL in $PWD"
-wget -q $PYQT_SRC_URL --no-check-certificate -O $PYQT_ARCHIVE.tar.gz
+wget $PYQT_SRC_URL --no-check-certificate -O $PYQT_ARCHIVE.tar.gz  # -q
 
 echo "(b) Unzipping PyQt sources in $PWD"
-tar -xvf $PYQT_ARCHIVE.tar.gz >/dev/null
+tar -xvf $PYQT_ARCHIVE.tar.gz  # >/dev/null
 mv $PYQT_ARCHIVE $PYQT_DIR
 
 echo "(c) Installing PyQt dependencies "
