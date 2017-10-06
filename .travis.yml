@@ -78,6 +78,8 @@ after_success:
   # create a tar.gz in dist/, containing the PyQt distribution
   - echo "creating archive $TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER""_gpl_minimal.tar.gz from $PYQT_DIR"
   - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal.tar.gz $PYQT_DIR >/dev/null
+  - cd $TRAVIS_BUILD_DIR
+  - ls dist
 #
 #  # ***documentation***
 #  - mkdocs build -f docs/mkdocs.yml
@@ -116,8 +118,8 @@ deploy:
     # on:
     #   repo: smarie/PyQt5-minimal
     skip_cleanup: true
-    on:
-      tags: true
+#    on:
+#      tags: true
 
 matrix:
     fast_finish: true
