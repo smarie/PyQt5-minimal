@@ -1,0 +1,125 @@
+language: python
+
+python:
+  # We don't actually use the Travis Python, but this keeps it organized.
+  - "3.5"
+  #- "3.6"
+
+env:
+  matrix:
+  - QT_VER=5.6.3 PYQT_VER=5.6 CACHE_NAME=Qt5.6.3-PyQt5.6
+  global:
+  - GH_REF: git@github.com:smarie/PyQt5-minimal.git
+
+# cache: pip
+cache:
+  directories:
+  - 'Qt$QT_VER'
+  - 'PyQt$PYQT_VER'
+
+install:
+  - sudo apt-get install pandoc
+  - sudo apt-get install ant
+  - sudo apt-get install ant-optional
+  - sudo apt-get install rpm
+  - sudo apt-get install alien
+
+  # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
+  - echo "downloading miniconda"; if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      sudo wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      sudo wget -q https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - echo "installing miniconda to $HOME/miniconda";  bash miniconda.sh -b -p $HOME/miniconda; export PATH="$HOME/miniconda/bin:$PATH"
+  - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
+  # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
+
+  # *** install useful dependencies
+  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip" "pip" "setuptools" -q
+
+  # *** Compile and install Qt ******
+  # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
+  # => build & install Qt from sources instead:
+  - cd "$TRAVIS_BUILD_DIR"
+  - export QT_DIR="$TRAVIS_BUILD_DIR/Qt$QT_VER"; echo $QT_DIR
+  # only build qt if needed (no cached version yet)
+  - if ls "$QT_DIR/lib/*.so" 1> /dev/null 2>&1; then
+      echo "Qt was already built in a previous run, using cached folder $QT_DIR";
+    else
+      echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
+    fi
+  - echo "Adding qt directory $QT_DIR/bin to path"; export PATH=$QT_DIR/bin:$PATH
+
+script:
+  # ********* Compile PyQt ***********
+  - cd "$TRAVIS_BUILD_DIR"
+  - export PYQT_DIR="$TRAVIS_BUILD_DIR/PyQt$PYQT_VER"; echo $PYQT_DIR
+  # only build pyqt if needed (no cached version yet)
+  - if [ ! -d "$PYQT_DIR/Makefile" ]; then
+      echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
+    else
+      echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
+    fi
+  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
+
+after_success:
+  # ***packaging for releases***
+  - mkdir "dist"
+  # create a tar.gz in dist/, containing the Qt distribution
+  - tar -cvf "$TRAVIS_BUILD_DIR/dist/Qt$QT_VER_lgpl_minimal.tar.gz" "$QT_DIR"
+  # create a tar.gz in dist/, containing the PyQt distribution
+  - tar -cvf "$TRAVIS_BUILD_DIR/dist/PyQt$PYQT_VER_gpl_minimal.tar.gz" "$PYQT_DIR"
+
+  # ***documentation***
+  - mkdocs build -f docs/mkdocs.yml
+  # mkdocs gh-deploy requires special care :
+  # ---grant the possibility to push on the repo---
+  - openssl aes-256-cbc -K $encrypted_92426aa61fa3_key -iv $encrypted_92426aa61fa3_iv -in ci_tools/github_travis_rsa.enc -out ci_tools/github_travis_rsa -d
+  - chmod 600 ci_tools/github_travis_rsa
+  - eval `ssh-agent -s`  # launch the authentication agent
+  - ssh-add ci_tools/github_travis_rsa  # register the key
+  - git config user.name "Automatic Publish"
+  - git config user.email "sylvain.marie@schneider-electric.com"
+  - git remote add gh-remote "${GH_REF}";
+  - git fetch gh-remote && git fetch gh-remote gh-pages:gh-pages;
+  # push but only if this is not a build triggered by a pull request
+  - if [ "${TRAVIS_PULL_REQUEST}" = "false" ] && [ "${TRAVIS_PYTHON_VERSION}" = "3.5" ]; then
+      echo "Pushing to github";
+      # note: here we use the --dirty flag so that mkdocs does not clean the additional reports that we copied in site/
+      mkdocs gh-deploy -v --dirty -f docs/mkdocs.yml --remote-name gh-remote;
+      git push gh-remote gh-pages;
+    fi
+
+deploy:
+#  # the pypi package
+#  - provider: pypi
+#    user: "smarie"
+#    password:
+#      secure: "UA7YFzkzKDWjTc53XVrQA0ztTRkXBp6k1+/M0aTH1XckwwTak3uVTQGAYHGpZSQ6jqm7Rz46YivmaW9IdC+rVWpWcsaO4XdhSV8lnBJW0XFdl4yuGst5wXfSQMx4JEiOzHpRn607H6ZzPgBE8mOdYqE+jAo3Mn6q8aLUMz+zUEhGV6zbqJUwV0JrwUrWsaMWLFpK3ryHmLKNnvoyaa/qudD9NJmPnrw0cXtHa/S3X02r2YyZ2LtOlDJ+ZmSDjBVF8iK2CGSTwlXViv/rHc3XPRYe0/OOJm2A7DgQgqx41tqfyBmh8kiYT1M5t2U5+OZxSdshWw0tMjpzql2LiH+ww8KmoSiMBNFa+uRzRdnDG2IGunN8D15dFSwZ2nFT4xYaIaXJ35tzoEXoBDl0LT67X+i48MuWDyvRe1kXpzz0cdPSLJ9JylrB9ErIbIE4d+m7gS4ula8YQvYJMmpLRwNO4ewb1t94tDjW+DN/5YxQuytFBMIlYx2cST5svx2jghgpkxrxOH2EZo7W6uVdltiMHJs6IcrcPaOo8GI7/TPWA7fQTuSHQ1psuRPiDECcVYmzxAqqDAQCHFLw6O1cE0S1bmPYVHFl4w7rdHa0AlJjcwVIFgAujPgAA1fof7tTMAz7/xWwluwLV+YQbJ5BP8RyNI/DnbOdR1+OOcz86RsxPS4="
+#    on:
+#      tags: true
+#      python: 3.5  #only one of the builds have to be deployed
+#    # server: https://test.pypi.org/legacy/
+#    distributions: "sdist bdist_wheel"
+
+  # the release on github
+  - provider: releases
+    api_key:
+      secure: "BRP10CcTXKIUgMqKaoOiVTCBNE3i/WPqw5AGzdV+7YVHYY5XpJ4a0ioJUdNqwHBarli6L5v7Z4uUwFXpl+ONQyenhBAlBoMm42eonMayDTl4bZC59hvWA82fEST99FF+m/entPJRfdLFeDU00Y6GfobKed6tQx+uqgN4a/OQGto1q3ZL7Znj3dZobOq38TfFRg9CZp+/0RAAnQr6wfFdTlC44oQZDF9UrG9xgLyNmId+A4Szv6fG10x+BQdxNgD5Kl4d8wMpqf//pJKE/IkeMiduu6ghOmsNjGPCbWwxIPjzKWJuKzr4k9wNVAJ/JOQ5g4e08C6bPHrVhnINEKZwx/0zSLMNGQ/IoguG/4sSANmkiGZJj04Jb+SgMZ4PrU1XHy9UJaytyx8PpBZ6stk25HVLhv8gCZ07uHcAeZ1QtUG4YfM03jV9qLjSg2eA2IXV8Dl7ObR9aQ6+/Lh7DABfi7WneA8d1YeROQnaPiyqlo3Vkty2R74UZKBNpTtZd2+Z7PgosIWD5A4HgjfM/Jt8fzPGw5GREz2PgvrxYJSEoFvp2bnbVew3xCYd7C6il7E61UQ5EPA1+m+sFmfcXeGwFtcQ1s1swIpUXVmvBhhS0EKttlLHgcBGdH03V7fXBef7k9CJGLdiEuJBaMHhFdlGYbFiRuLBjgkjNbjQ77TVveU="
+    file_glob: true
+    file:
+      - dist/*
+    # on:
+    #   repo: smarie/PyQt5-minimal
+    skip_cleanup: true
+    on:
+      tags: true
+
+matrix:
+    fast_finish: true
+
+notifications:
+  email:
+    on_success: never  # options: [always|never|change] default: always
