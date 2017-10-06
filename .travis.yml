@@ -45,7 +45,8 @@ install:
   # only build qt if needed (no cached version yet)
   - ls $QT_DIR
   - ls $QT_DIR/lib
-  - if ls "$QT_DIR/lib/*.so" 1> /dev/null 2>&1; then
+  # warning NO QUOTES in the test
+  - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder $QT_DIR";
     else
       echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
