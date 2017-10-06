@@ -59,6 +59,7 @@ script:
   - cd "$TRAVIS_BUILD_DIR"
   - export PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER; echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
+  - ls $PYQT_DIR
   - if [ ! -d "$PYQT_DIR/QtGui.pyi" ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
       rm -rf $PYQT_DIR;
