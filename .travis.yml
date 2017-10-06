@@ -43,6 +43,8 @@ install:
   - cd "$TRAVIS_BUILD_DIR"
   - export QT_DIR="$TRAVIS_BUILD_DIR/Qt$QT_VER"; echo $QT_DIR
   # only build qt if needed (no cached version yet)
+  - ls $QT_DIR
+  - ls $QT_DIR/lib
   - if ls "$QT_DIR/lib/*.so" 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder $QT_DIR";
     else
