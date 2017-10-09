@@ -36,7 +36,8 @@ install:
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
   # *** install useful dependencies
-  - echo "conda-installing python, sip, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip>=4.19.3" "pip" "setuptools" -q
+  - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "pip" "setuptools" -q
+  - echo "pip-installing sip"; pip install "sip>=4.19.3"
 
   # *** Compile and install Qt ******
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
