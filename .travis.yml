@@ -16,7 +16,7 @@ env:
 cache:
   directories:
   - 'Qt$QT_VER'
-#  - 'PyQt$PYQT_VER'
+  - 'PyQt$PYQT_VER'
 
 install:
   - sudo apt-get install pandoc
@@ -61,13 +61,13 @@ script:
   - cd "$TRAVIS_BUILD_DIR"
   - export PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER; echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
-  - ls $PYQT_DIR
   - if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
       rm -rf $PYQT_DIR;
       source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
     else
       echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
+      ls $PYQT_DIR;
     fi
   - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
 #  - echo "Moving PyQt binaries to working directory"; mkdir $TRAVIS_BUILD_DIR/PyQt5; cd $PYQT_DIR; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $TRAVIS_BUILD_DIR/PyQt5 \;
