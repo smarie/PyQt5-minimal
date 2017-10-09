@@ -117,8 +117,8 @@ deploy:
     # on:
     #   repo: smarie/PyQt5-minimal
     skip_cleanup: true
-#    on:
-#      tags: true
+    on:
+      tags: true
 
 matrix:
     fast_finish: true

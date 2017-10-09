@@ -1,0 +1,43 @@
+diff --git "a/C:\\W_dev\\_pycharm_workspace\\0_develop-and-proxy\\configure.py" "b/C:\\W_dev\\_pycharm_workspace\\0_develop-and-proxy\\configure_new.py"
+index b24866d..eda0b1a 100644
+--- "a/C:\\W_dev\\_pycharm_workspace\\0_develop-and-proxy\\configure.py"
++++ "b/C:\\W_dev\\_pycharm_workspace\\0_develop-and-proxy\\configure_new.py"
+@@ -1901,13 +1901,38 @@ def run_qmake(target_config, verbose, pro_name, makefile_name='', fatal=True, re
+ 
+         return False
+ 
++    # *** HACK change makefiles 
++    lib_path = target_config.qmake[:target_config.qmake.find('/bin/qmake')] + '/lib'
++    fix_file(mf, lib_path)
++
+     # Restore the current directory.
+     if cwd is not None:
+         os.chdir(cwd)
+ 
++    # *** HACK change makefiles 
++    if recursive:
++        import glob
++        all = [file for file in glob.glob('./**/Makefile', recursive=True)]
++        print('found other makefiles: ' + str(all))
++        for mkfile in all:
++            fix_file(mkfile, lib_path)
++
+     return True
+ 
+ 
++def fix_file(file_name, lib_path):
++    """ 
++    replace "LFLAGS = -Wl,-O1 -Wl,-rpath,<xxxxx>" 
++    with "LFLAGS = -L<xxxxx> -Wl,-O1 -Wl,-rpath,<xxxxx>"
++    """
++    print('HACK SMA -- fixing generated makefile : ' + str(file_name))
++    with open(file_name, 'r') as f:
++        mkfile = f.read()
++    mkfile = mkfile.replace('LFLAGS        = -Wl,', 'LFLAGS        = -L' + lib_path + ' -Wl,')
++    with open(file_name, 'w') as f:
++        f.write(mkfile)
++
++
+ def run_make(target_config, verbose, exe, makefile_name):
+     """ Run make against a makefile to create an executable.  target_config is
+     the target configuration.  verbose is set if the output is to be displayed.
