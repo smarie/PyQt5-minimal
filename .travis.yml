@@ -8,7 +8,7 @@ python:
 env:
   matrix:
   - QT_VER=5.6.3 PYQT_VER=5.6 CACHE_NAME=Qt5.6.3-PyQt5.6
-  - QT_VER=5.9.2 PYQT_VER=5.9 CACHE_NAME=Qt5.9.2-PyQt5.9
+  # - QT_VER=5.9.2 PYQT_VER=5.9 CACHE_NAME=Qt5.9.2-PyQt5.9  >> does not work
   global:
   - GH_REF: git@github.com:smarie/PyQt5-minimal.git
 
@@ -16,7 +16,7 @@ env:
 cache:
   directories:
   - 'Qt$QT_VER'
-  - 'PyQt$PYQT_VER'
+#  - 'PyQt$PYQT_VER'
 
 install:
   - sudo apt-get install pandoc
@@ -36,8 +36,8 @@ install:
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
   # *** install useful dependencies
-  - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "pip" "setuptools" -q
-  - echo "pip-installing sip"; pip install "sip>=4.19.3"
+  - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip" "pip" "setuptools" -q
+  # - echo "pip-installing sip"; pip install "sip>=4.19.3"
 
   # *** Compile and install Qt ******
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
@@ -70,6 +70,8 @@ script:
       echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
     fi
   - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
+#  - echo "Moving PyQt binaries to working directory"; mkdir $TRAVIS_BUILD_DIR/PyQt5; cd $PYQT_DIR; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $TRAVIS_BUILD_DIR/PyQt5 \;
+#  - pip install .
 
 after_success:
 # ***packaging for releases***
