@@ -51,7 +51,7 @@ REM bash -lc "pacman -S --needed --noconfirm git"
 REM Update
 REM bash -lc "pacman -Syu --noconfirm"
 
-echo "(a) setup MSYS2 for Qt build, see https://wiki.qt.io/MSYS2"
+echo "(a) setup MSYS2 for Qt build (see https://wiki.qt.io/MSYS2)"
 
 echo "-- First update msys2 core components"
 bash -lc "pacman -Sy --noconfirm"
@@ -79,19 +79,15 @@ REM bash -lc "cp -pv /mingw64/bin/gcc /mingw64/bin/cc"
 echo "(b) installing jom"
 cd %APPVEYOR_BUILD_FOLDER%
 appveyor DownloadFile "http://download.qt.io/official_releases/jom/jom.zip"
-7z x jom.zip
+7z x jom.zip -o%APPVEYOR_BUILD_FOLDER%\jom > nul
 
 echo "(c) downloading Qt archive"
 cd %APPVEYOR_BUILD_FOLDER%
 appveyor DownloadFile %QT_SRC_URL%
-7z x %QT_ARCHIVE%.tar.xz
+7z x %QT_ARCHIVE%.tar.xz > nul
 
-echo "(c) downloading Qt archive"
-cd %APPVEYOR_BUILD_FOLDER%
-appveyor DownloadFile %QT_SRC_URL%
-7z x %QT_ARCHIVE%.tar.xz -o%APPVEYOR_BUILD_FOLDER%\jom
-
-echo "(d) configuring Qt see https://wiki.qt.io/MinGW-64-bit"
+echo "(d) configuring Qt (see https://wiki.qt.io/MinGW-64-bit)"
+dir
 cd %QT_ARCHIVE%
 echo "-- creating qtbaseitignore if needed"
 if not exist qtbaseitignore type nul>qtbaseitignore
