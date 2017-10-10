@@ -21,15 +21,13 @@ REM Create a writeable TMPDIR
 mkdir %APPVEYOR_BUILD_FOLDER%\tmp
 set TMPDIR=%APPVEYOR_BUILD_FOLDER%\tmp
 
-@echo on
-
 REM extract version details
 for /F "tokens=1,2,3 delims=." %%a in ("%QT_VER%") do (
    set Major=%%a
    set Minor=%%b
    set Revision=%%c
 )
-echo Major: %Major%, Minor: %Minor%, Revision: %Revision%
+echo Qt version: Major: %Major%, Minor: %Minor%, Revision: %Revision%
 
 set QT_VER_SHORT="%Major%.%Minor%"
 set QT_ARCHIVE="qt-everywhere-opensource-src-%QT_VER%"
@@ -37,10 +35,15 @@ set QT_SRC_URL="http://download.qt.io/official_releases/qt/%QT_VER_SHORT%/%QT_VE
 set QT_SRC_DIR="%APPVEYOR_BUILD_FOLDER%/%QT_ARCHIVE%"
 set QT_PCRE_SRC="%QT_SRC_DIR%/qtbase/src/3rdparty/pcre/"
 
+echo QT_VER_SHORT: %QT_VER_SHORT%
+echo QT_ARCHIVE: %QT_ARCHIVE%
+echo QT_SRC_URL: %QT_SRC_URL%
+echo QT_SRC_DIR: %QT_SRC_DIR%
+echo QT_PCRE_SRC: %QT_PCRE_SRC%
 
 IF %COMPILER%==msys2 (
 
-    SET "PATH=C:\%MSYS2_DIR%\%MSYSTEM%\bin;C:\%MSYS2_DIR%\usr\bin;%PATH%"
+    SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
     bash -lc "pacman -S --needed --noconfirm pacman-mirrors"
     bash -lc "pacman -S --needed --noconfirm git"
     REM Update
