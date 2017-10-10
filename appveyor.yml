@@ -1,0 +1,79 @@
+environment:
+  matrix:
+    # Unfortunately this does not work with miniconda 32 bit: resulting cx_freeze still contains 64/32
+#    - PYTHON_VERSION: "3.5"
+#      PYTHON: "C:\\Python35"
+#      MINICONDA: "C:\\Miniconda35"
+    - PYTHON_VERSION: "3.5"
+      PYTHON: "C:\\Python35-x64"
+      MINICONDA: "C:\\Miniconda35-x64"
+      QT_VER: "5.6.2"
+      PYQT_VER: "5.6"
+      MSYS2_DIR: "C:\msys64"
+      COMPILER: msys2
+      PLATFORM: x64
+      MSYS2_ARCH: x86_64
+      MSYSTEM: MINGW64
+      BIT: 64
+
+#cache:
+#  - C:\msys64
+
+init:
+  - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
+
+# **** Miniconda version ****
+install:
+  # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
+  - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
+  - conda config --set always_yes yes --set changeps1 no
+  # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
+  # - conda env create -f "ci_tools/conda_env.yml" -n envswitch >> lets try differently
+
+  # (b) base conda environment
+  - conda create -n envswitch python=%PYTHON_VERSION%
+  - activate envswitch
+  - conda install "python=%PYTHON_VERSION%" "sip" "pip>=9.0.1" "setuptools=36" -q
+#  - conda install pandoc -q
+
+  # (c) Compile and install Qt
+  # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
+  # => build & install Qt from sources instead:
+  # TODO only build qt if needed (no cached version yet)
+  - call ./ci_tools/build_install_qt.bat
+
+build: off
+
+test_script:
+  # nothing here
+
+after_test:
+  # ***packaging for releases***
+
+artifacts:
+#  # bdist_wheel puts your built wheel in the dist directory
+#  - path: 'build\envswitch-%VER%-exe.win-amd64-%PYTHON_VERSION%'
+#    type: zip
+#
+#  - path: 'build\envswitch-%VER%-exe.win32-%PYTHON_VERSION%'
+#    type: zip
+#
+#  - path: dist\*
+
+on_success:
+#  You can use this step to upload your artifacts to a public website.
+#  See Appveyor's documentation for more details. Or you can simply
+#  access your wheels from the Appveyor "artifacts" tab for your build.
+
+deploy:
+  # release: myproduct-v$(appveyor_build_version)
+  description: ''
+  provider: GitHub
+  auth_token:
+    secure: 'SYd5+MMCyCHhSsQ8ZLPnbBC0KbUv/DVDUFTkdCkYd+wJCa2lsxo9w0HzA8Zg11iG' # encrypted token from GitHub
+  # artifact: /.*\.nupkg/            # upload all
+  draft: false
+  prerelease: false
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
