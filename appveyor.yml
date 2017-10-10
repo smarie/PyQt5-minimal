@@ -48,7 +48,7 @@ install:
   - if not exist %MSYS2_DIR_CACHE%\usr\bin\ruby.exe (
       echo "No cache found, setting up msys2 mingw 64 environment" &
       call ./ci_tools/setup_msys.bat &
-      xcopy /S /Y %MSYS2_DIR% %MSYS2_DIR_CACHE% &
+      xcopy /S /Y %MSYS2_DIR% %MSYS2_DIR_CACHE%
     ) else (
       echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, copying it" &
       RMDIR %MSYS2_DIR% /s /q &
