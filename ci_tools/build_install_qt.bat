@@ -84,5 +84,4 @@ REM --platform win32-g++
 
 cd %APPVEYOR_BUILD_FOLDER%
 echo "(e) Cleaning up and returning to appveyor build dir %CD%"
-REM TODO DEL sudo rm -rf $QT_SRC_DIR
-RMDIR %QT_SRC_DIR% /s /q
+RMDIR /S /Q %QT_SRC_DIR%
