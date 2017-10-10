@@ -52,7 +52,7 @@ install:
     ) else (
       echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, copying it" &
       RMDIR %MSYS2_DIR% /s /q &
-      xcopy /S /Y %MSYS2_DIR_CACHE% %MSYS2_DIR% &
+      echo d | xcopy /S /Y %MSYS2_DIR_CACHE% %MSYS2_DIR% &
       SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
     )
     # xcopy /S /Y %MSYS2_DIR_CACHE% %MSYS2_DIR% &
