@@ -64,8 +64,7 @@ IF %COMPILER%==msys2 (
     REM bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-toolchain autoconf automake libtool make patch mingw-w64-x86_64-libtool"
     REM bash -lc "pacman -S --needed --noconfirm mingw-w64-x86_64-perl"
 
-    bash -lc "pl2bat $(which pl2bat)"
-
+    REM bash -lc "pl2bat $(which pl2bat)"
     REM bash -lc "yes | cpan App::cpanminus"
     REM bash -lc "cpanm --notest ExtUtils::MakeMaker"
 
@@ -74,4 +73,16 @@ IF %COMPILER%==msys2 (
 
     REM There is not a corresponding cc for the mingw64 gcc. So we copy it in place.
     REM bash -lc "cp -pv /mingw64/bin/gcc /mingw64/bin/cc"
+
+
+    echo "(b) downloading Qt archive"
+    cd %APPVEYOR_BUILD_FOLDER%
+    appveyor DownloadFile %QT_SRC_URL%
+    7z x %QT_ARCHIVE%
+
+    echo "(c) configuring Qt TODO"
+    REMif not exist qtbaseitignore type nul>qtbaseitignore
+
+    echo "(d) building Qt TODO"
+
 )
