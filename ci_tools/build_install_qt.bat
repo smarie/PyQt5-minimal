@@ -29,11 +29,11 @@ for /F "tokens=1,2,3 delims=." %%a in ("%QT_VER%") do (
 )
 echo Qt version: Major: %Major%, Minor: %Minor%, Revision: %Revision%
 
-set QT_VER_SHORT="%Major%.%Minor%"
-set QT_ARCHIVE="qt-everywhere-opensource-src-%QT_VER%"
-set QT_SRC_URL="http://download.qt.io/official_releases/qt/%QT_VER_SHORT%/%QT_VER%/single/%QT_ARCHIVE%.tar.xz"
-set QT_SRC_DIR="%APPVEYOR_BUILD_FOLDER%/%QT_ARCHIVE%"
-set QT_PCRE_SRC="%QT_SRC_DIR%/qtbase/src/3rdparty/pcre/"
+set QT_VER_SHORT=%Major%.%Minor%
+set QT_ARCHIVE=qt-everywhere-opensource-src-%QT_VER%
+set QT_SRC_URL=http://download.qt.io/official_releases/qt/%QT_VER_SHORT%/%QT_VER%/single/%QT_ARCHIVE%.tar.xz
+set QT_SRC_DIR=%APPVEYOR_BUILD_FOLDER%/%QT_ARCHIVE%
+set QT_PCRE_SRC=%QT_SRC_DIR%/qtbase/src/3rdparty/pcre/
 
 echo QT_VER_SHORT: %QT_VER_SHORT%
 echo QT_ARCHIVE: %QT_ARCHIVE%
