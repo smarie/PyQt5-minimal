@@ -12,14 +12,14 @@ environment:
       PYQT_VER: 5.6
       PYQT_DIR_REL: PyQt5.6
       MSYS2_DIR: "C:\\msys64"
-      COMPILER: msys2
-      PLATFORM: x64
+      # COMPILER: msys2
+      # PLATFORM: x64
       MSYS2_ARCH: x86_64
       MSYSTEM: MINGW64
       BIT: 64
 
 cache:
-  # - C:\msys64
+  - "C:\\msys64"
   - '%QT_DIR_REL%'
   - '%PYQT_DIR_REL%'
 
@@ -28,8 +28,8 @@ init:
 
 # **** Miniconda version ****
 install:
-  - set QT_DIR=%APPVEYOR_BUILD_FOLDER%/%QT_DIR_REL%
-  - set PYQT_DIR=%APPVEYOR_BUILD_FOLDER%/%PYQT_DIR_REL%
+  - set QT_DIR=%APPVEYOR_BUILD_FOLDER%\%QT_DIR_REL%
+  - set PYQT_DIR=%APPVEYOR_BUILD_FOLDER%\%PYQT_DIR_REL%
 
   # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
@@ -44,7 +44,13 @@ install:
 #  - conda install pandoc -q
 
   # (c) setup msys2+mingw 64
-  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
+  - if not exist %MSYS2_DIR%\usr\bin\ruby.exe (
+      echo "No cache found, setting up msys2 mingw 64 environment" &
+      call ./ci_tools/setup_msys.bat
+    ) else (
+      echo "Found existing msys2 cache in %MSYS2_DIR%" &
+      SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
+    )
 
   # (d) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch

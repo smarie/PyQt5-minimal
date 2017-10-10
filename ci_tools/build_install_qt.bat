@@ -10,12 +10,12 @@ cd %APPVEYOR_BUILD_FOLDER%
 
 echo "***** Starting compilation of Qt for installation to QT_DIR=%QT_DIR% *******"
 
-echo Compiler: %COMPILER%
-echo Architecture: %MSYS2_ARCH%
-echo Platform: %PLATFORM%
-echo MSYS2 directory: %MSYS2_DIR%
-echo MSYS2 system: %MSYSTEM%
-echo Bits: %BIT%
+REM echo Compiler: %COMPILER%
+REM echo Architecture: %MSYS2_ARCH%
+REM echo Platform: %PLATFORM%
+REM echo MSYS2 directory: %MSYS2_DIR%
+REM echo MSYS2 system: %MSYSTEM%
+REM echo Bits: %BIT%
 
 REM Create a writeable TMPDIR
 mkdir %APPVEYOR_BUILD_FOLDER%\tmp
@@ -41,15 +41,14 @@ echo QT_SRC_URL: %QT_SRC_URL%
 echo QT_SRC_DIR: %QT_SRC_DIR%
 echo QT_PCRE_SRC: %QT_PCRE_SRC%
 
-echo "(a) downloading Qt archive"
+echo "(a) downloading Qt archive in %APPVEYOR_BUILD_FOLDER%"
 cd %APPVEYOR_BUILD_FOLDER%
 appveyor DownloadFile %QT_SRC_URL%
 7z x %QT_ARCHIVE%.tar.xz > nul
 7z x %QT_ARCHIVE%.tar > nul
 
-echo "(b) configuring Qt (see https://wiki.qt.io/MinGW-64-bit)"
-dir
 cd %QT_ARCHIVE%
+echo "(b) configuring Qt (see https://wiki.qt.io/MinGW-64-bit) in %CD%"
 echo "-- creating qtbaseitignore if needed"
 if not exist qtbaseitignore type nul>qtbaseitignore
 
@@ -60,6 +59,7 @@ set INCLUDE=
 REM set LIB=C:5_deps\icu\dist\lib;C:5_deps\openssl-1.0.1e\dist\lib
 set LIB=
 set QMAKESPEC=
+REM apparently this variable needs to be deleted, note that its name is very close from our own QT_DIR variable !
 set QTDIR=
 set "PATH=%CD%\qtbase\bin;%CD%\gnuwin32\bin;%PATH%"
 REM windows2unix() { local pathPcs=() split pathTmp IFS=\;; read -ra split <<< "$*"; for pathTmp in "${split[@],}"; do pathPcs+=( "/${pathTmp//+([:\\])//}" ); done; echo "${pathPcs[*]}"; }; systemrootP=$(windows2unix "$SYSTEMROOT"); export PATH="%CD%/qtbase/bin:%CD%/gnuwin32/bin:/c/msys2/mingw64/bin:/c/msys2/usr/bin:/c/Qt/qt5_deps/icu/dist/lib"
@@ -67,7 +67,7 @@ echo Path is now %PATH%
 REM ;%SystemRoot%\System32
 set MAKE_COMMAND=
 
-echo "-- configuring"
+echo "-- configuring in %CD%"
 REM -qt-pcre -qt-zlib
 REM set QT_DIR=C:\qt-5.6.3
 configure -opensource -confirm-license -prefix %QT_DIR% -no-compile-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite -no-icu -no-cups -no-harfbuzz -no-incredibuild-xge -no-ssl -no-openssl -no-dbus -no-audio-backend -no-qml-debug -no-native-gestures -opengl desktop -skip qtlocation -skip qt3d -skip qtmultimedia -skip qtwebchannel -skip qtwayland -skip qtandroidextras -skip qtwebsockets -skip qtconnectivity -skip qtdoc -skip qtwebview -skip qtimageformats -skip qtwebengine -skip qtquickcontrols2 -skip qttranslations -skip qtxmlpatterns -skip qtactiveqt -skip qtx11extras -skip qtsvg -skip qtscript -skip qtserialport -skip qtdeclarative -skip qtgraphicaleffects -skip qtcanvas3d -skip qtmacextras -skip qttools -skip qtwinextras -skip qtsensors -skip qtenginio -skip qtquickcontrols -skip qtserialbus -nomake examples -nomake tests -nomake tools
