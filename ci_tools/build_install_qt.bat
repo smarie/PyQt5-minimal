@@ -1,8 +1,8 @@
 @echo off
 
 REM source:
-REM   http://doc.qt.io/qt-5/windows-building.html
-REM   https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
+REM   Primary sources : https://wiki.qt.io/MSYS2 and https://wiki.qt.io/MinGW-64-bit
+REM   Other reading: http://doc.qt.io/qt-5/windows-building.html, https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
 
 REM before running this script the variable QT_DIR and QT_VER should exist
 
@@ -42,7 +42,8 @@ echo QT_SRC_DIR: %QT_SRC_DIR%
 echo QT_PCRE_SRC: %QT_PCRE_SRC%
 
 IF %COMPILER%==msys2 (
-
+    REM set MSYS2_DIR=C:\msys64
+    REM set MSYSTEM=MINGW64
     SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
     REM bash -lc "pacman -S --needed --noconfirm pacman-mirrors"
     REM bash -lc "pacman -S --needed --noconfirm git"
@@ -74,15 +75,49 @@ IF %COMPILER%==msys2 (
     REM There is not a corresponding cc for the mingw64 gcc. So we copy it in place.
     REM bash -lc "cp -pv /mingw64/bin/gcc /mingw64/bin/cc"
 
+    echo "(b) installing jom"
+    cd %APPVEYOR_BUILD_FOLDER%
+    appveyor DownloadFile "http://download.qt.io/official_releases/jom/jom.zip"
+    7z x jom.zip
 
-    echo "(b) downloading Qt archive"
+    echo "(c) downloading Qt archive"
     cd %APPVEYOR_BUILD_FOLDER%
     appveyor DownloadFile %QT_SRC_URL%
-    7z x %QT_ARCHIVE%
+    7z x %QT_ARCHIVE%.tar.xz
 
-    echo "(c) configuring Qt TODO"
-    REMif not exist qtbaseitignore type nul>qtbaseitignore
+    echo "(c) downloading Qt archive"
+    cd %APPVEYOR_BUILD_FOLDER%
+    appveyor DownloadFile %QT_SRC_URL%
+    7z x %QT_ARCHIVE%.tar.xz -o%APPVEYOR_BUILD_FOLDER%\jom
 
-    echo "(d) building Qt TODO"
+    echo "(d) configuring Qt see https://wiki.qt.io/MinGW-64-bit"
+    cd %QT_ARCHIVE%
+    echo "-- creating qtbaseitignore if needed"
+    if not exist qtbaseitignore type nul>qtbaseitignore
 
+    echo "-- setting up environment variables"
+    REM We do not use openssl nor ICU
+    REM set INCLUDE=C:5_deps\icu\dist\include;C:5_deps\openssl-1.0.1e\dist\include
+    set INCLUDE=
+    REM set LIB=C:5_deps\icu\dist\lib;C:5_deps\openssl-1.0.1e\dist\lib
+    set LIB=
+    set QMAKESPEC=
+    set QTDIR=
+    set PATH=%CD%\qtbase\bin;%CD%\gnuwin32\bin;%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%APPVEYOR_BUILD_FOLDER%\jom
+    REM windows2unix() { local pathPcs=() split pathTmp IFS=\;; read -ra split <<< "$*"; for pathTmp in "${split[@],}"; do pathPcs+=( "/${pathTmp//+([:\\])//}" ); done; echo "${pathPcs[*]}"; }; systemrootP=$(windows2unix "$SYSTEMROOT"); export PATH="$PWD/qtbase/bin:$PWD/gnuwin32/bin:/c/msys2/mingw64/bin:/c/msys2/usr/bin:/c/Qt/qt5_deps/icu/dist/lib"
+    echo Path is now %PATH%
+    REM ;%SystemRoot%\System32
+    set MAKE_COMMAND=
+
+    echo "-- configuring"
+    REM -qt-pcre -qt-zlib
+    configure -opensource -confirm-license -prefix %QT_DIR% -no-compile-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite -no-icu -no-cups -no-harfbuzz -no-incredibuild-xge -no-ssl -no-openssl -no-dbus -no-audio-backend -no-qml-debug -no-native-gestures -opengl desktop -skip qtlocation -skip qt3d -skip qtmultimedia -skip qtwebchannel -skip qtwayland -skip qtandroidextras -skip qtwebsockets -skip qtconnectivity -skip qtdoc -skip qtwebview -skip qtimageformats -skip qtwebengine -skip qtquickcontrols2 -skip qttranslations -skip qtxmlpatterns -skip qtactiveqt -skip qtx11extras -skip qtsvg -skip qtscript -skip qtserialport -skip qtdeclarative -skip qtgraphicaleffects -skip qtcanvas3d -skip qtmacextras -skip qttools -skip qtwinextras -skip qtsensors -skip qtenginio -skip qtquickcontrols -skip qtserialbus -nomake examples -nomake tests -nomake tools
+
+REM -platform win32-g++ -c++11 -opengl desktop -openssl -plugin-sql-odbc -nomake tests
+
+    echo "(d) building Qt"
+    jom /W /S -j4
+
+    echo "(e) installing Qt"
+    jom /W /S -j4 install
 )
