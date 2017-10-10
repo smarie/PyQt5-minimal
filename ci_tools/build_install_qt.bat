@@ -85,6 +85,7 @@ echo "(c) downloading Qt archive"
 cd %APPVEYOR_BUILD_FOLDER%
 appveyor DownloadFile %QT_SRC_URL%
 7z x %QT_ARCHIVE%.tar.xz > nul
+7z x %QT_ARCHIVE%.tar > nul
 
 echo "(d) configuring Qt (see https://wiki.qt.io/MinGW-64-bit)"
 dir
@@ -113,7 +114,9 @@ configure -opensource -confirm-license -prefix %QT_DIR% -no-compile-examples -no
 REM -platform win32-g++ -c++11 -opengl desktop -openssl -plugin-sql-odbc -nomake tests
 
 echo "(d) building Qt"
-jom /W /S -j4
+REM jom /W /S -j4
+mingw32-make -j 4
 
 echo "(e) installing Qt"
-jom /W /S -j4 install
+mingw32-make -j 4 install
+REM --platform win32-g++
