@@ -43,7 +43,10 @@ install:
   - conda install "python=%PYTHON_VERSION%" "sip" "pip>=9.0.1" "setuptools=36" -q
 #  - conda install pandoc -q
 
-  # (c) Compile and install Qt
+  # (c) setup msys2+mingw 64
+  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
+
+  # (d) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # => build & install Qt from sources instead: if needed (if no cache available)
   - if not exist %QT_DIR%\ (
@@ -55,12 +58,12 @@ install:
     )
   - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
 
-  # (d) Compile PyQt if needed (if no cache available)
+  # (e) Compile PyQt if needed (if no cache available)
   - if not exist %PYQT_DIR%\ (
-      echo "No cache found, building pyqt"
+      echo "No cache found, building pyqt" &
       call ./ci_tools/build_pyqt.bat
     ) || (
-      echo "Found existing cache in %PYQT_DIR%"
+      echo "Found existing cache in %PYQT_DIR%" &
       dir %PYQT_DIR%
     )
   - echo "Installing PyQt to python site-packages" & cd "%PYQT_DIR%" & mingw32-make -j 4 install
