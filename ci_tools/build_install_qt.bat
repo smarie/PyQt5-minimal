@@ -8,7 +8,7 @@ REM before running this script the variable QT_DIR and QT_VER should exist
 
 cd %APPVEYOR_BUILD_FOLDER%
 
-echo "***** Starting compilation of Qt for installation to $QT_DIR *******"
+echo "***** Starting compilation of Qt for installation to QT_DIR=%QT_DIR% *******"
 
 echo Compiler: %COMPILER%
 echo Architecture: %MSYS2_ARCH%
@@ -40,7 +40,6 @@ echo QT_ARCHIVE: %QT_ARCHIVE%
 echo QT_SRC_URL: %QT_SRC_URL%
 echo QT_SRC_DIR: %QT_SRC_DIR%
 echo QT_PCRE_SRC: %QT_PCRE_SRC%
-
 
 SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
 
@@ -102,21 +101,26 @@ set LIB=
 set QMAKESPEC=
 set QTDIR=
 set PATH=%CD%\qtbase\bin;%CD%\gnuwin32\bin;%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%APPVEYOR_BUILD_FOLDER%\jom
-REM windows2unix() { local pathPcs=() split pathTmp IFS=\;; read -ra split <<< "$*"; for pathTmp in "${split[@],}"; do pathPcs+=( "/${pathTmp//+([:\\])//}" ); done; echo "${pathPcs[*]}"; }; systemrootP=$(windows2unix "$SYSTEMROOT"); export PATH="$PWD/qtbase/bin:$PWD/gnuwin32/bin:/c/msys2/mingw64/bin:/c/msys2/usr/bin:/c/Qt/qt5_deps/icu/dist/lib"
+REM windows2unix() { local pathPcs=() split pathTmp IFS=\;; read -ra split <<< "$*"; for pathTmp in "${split[@],}"; do pathPcs+=( "/${pathTmp//+([:\\])//}" ); done; echo "${pathPcs[*]}"; }; systemrootP=$(windows2unix "$SYSTEMROOT"); export PATH="%CD%/qtbase/bin:%CD%/gnuwin32/bin:/c/msys2/mingw64/bin:/c/msys2/usr/bin:/c/Qt/qt5_deps/icu/dist/lib"
 echo Path is now %PATH%
 REM ;%SystemRoot%\System32
 set MAKE_COMMAND=
 
 echo "-- configuring"
 REM -qt-pcre -qt-zlib
+REM set QT_DIR=C:\qt-5.6.3
 configure -opensource -confirm-license -prefix %QT_DIR% -no-compile-examples -no-sql-mysql -no-sql-odbc -no-sql-sqlite -no-icu -no-cups -no-harfbuzz -no-incredibuild-xge -no-ssl -no-openssl -no-dbus -no-audio-backend -no-qml-debug -no-native-gestures -opengl desktop -skip qtlocation -skip qt3d -skip qtmultimedia -skip qtwebchannel -skip qtwayland -skip qtandroidextras -skip qtwebsockets -skip qtconnectivity -skip qtdoc -skip qtwebview -skip qtimageformats -skip qtwebengine -skip qtquickcontrols2 -skip qttranslations -skip qtxmlpatterns -skip qtactiveqt -skip qtx11extras -skip qtsvg -skip qtscript -skip qtserialport -skip qtdeclarative -skip qtgraphicaleffects -skip qtcanvas3d -skip qtmacextras -skip qttools -skip qtwinextras -skip qtsensors -skip qtenginio -skip qtquickcontrols -skip qtserialbus -nomake examples -nomake tests -nomake tools
 
 REM -platform win32-g++ -c++11 -opengl desktop -openssl -plugin-sql-odbc -nomake tests
 
-echo "(d) building Qt"
+echo "(d) building Qt in %CD%"
 REM jom /W /S -j4
 mingw32-make -j 4
 
-echo "(e) installing Qt"
+echo "(e) installing Qt in %QT_DIR% from %CD%"
 mingw32-make -j 4 install
 REM --platform win32-g++
+
+cd %APPVEYOR_BUILD_FOLDER%
+echo "(i) Cleaning up and returning to appveyor build dir %CD%"
+sudo rm -rf $QT_SRC_DIR

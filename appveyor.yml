@@ -7,8 +7,10 @@ environment:
     - PYTHON_VERSION: "3.5"
       PYTHON: "C:\\Python35-x64"
       MINICONDA: "C:\\Miniconda35-x64"
-      QT_VER: "5.6.2"
+      QT_VER: 5.6.3
+      QT_DIR: %APPVEYOR_BUILD_FOLDER%/Qt%QT_VER%
       PYQT_VER: "5.6"
+      PYQT_DIR: %APPVEYOR_BUILD_FOLDER%/PyQt%PYQT_VER%
       MSYS2_DIR: "C:\\msys64"
       COMPILER: msys2
       PLATFORM: x64
@@ -16,8 +18,10 @@ environment:
       MSYSTEM: MINGW64
       BIT: 64
 
-#cache:
-#  - C:\msys64
+cache:
+  # - C:\msys64
+  - '%QT_DIR%'
+  - '%PYQT_DIR%'
 
 init:
   - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
@@ -38,9 +42,25 @@ install:
 
   # (c) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
-  # => build & install Qt from sources instead:
-  # TODO only build qt if needed (no cached version yet)
-  - call ./ci_tools/build_install_qt.bat
+  # => build & install Qt from sources instead: if needed (if no cache available)
+  - if not exist %QT_DIR%\ (
+      echo "No cache found, building qt"
+      call ./ci_tools/build_install_qt.bat
+    ) || (
+      echo "Found existing cache in %QT_DIR%"
+      dir %QT_DIR%
+    )
+  - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
+
+  # (d) Compile PyQt if needed (if no cache available)
+  - if not exist %PYQT_DIR%\ (
+      echo "No cache found, building pyqt"
+      call ./ci_tools/build_pyqt.bat
+    ) || (
+      echo "Found existing cache in %PYQT_DIR%"
+      dir %PYQT_DIR%
+    )
+  - echo "Installing PyQt to python site-packages" & cd "%PYQT_DIR%" & mingw32-make -j 4 install
 
 build: off
 
@@ -49,15 +69,22 @@ test_script:
 
 after_test:
   # ***packaging for releases***
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - echo "Creating the appropriate archives into dist/" & mkdir dist
+  #- mv %QT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64/
+  - 7z a -ttar -so Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar Qt%QT_VER% | 7z a -si dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz
+  #- mv %PYQT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64/
+  - 7z a -ttar -so PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar PyQt%PYQT_VER% | 7z a -si dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz
 
 artifacts:
 #  # bdist_wheel puts your built wheel in the dist directory
-#  - path: 'build\envswitch-%VER%-exe.win-amd64-%PYTHON_VERSION%'
-#    type: zip
-#
-#  - path: 'build\envswitch-%VER%-exe.win32-%PYTHON_VERSION%'
-#    type: zip
-#
+
+  - path: 'dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64'
+    type: zip
+
+  - path: 'dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64'
+    type: zip
+
 #  - path: dist\*
 
 on_success:
