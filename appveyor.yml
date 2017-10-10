@@ -49,20 +49,20 @@ install:
   # (d) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # => build & install Qt from sources instead: if needed (if no cache available)
-  - if not exist %QT_DIR%\ (
-      echo "No cache found, building qt"
+  - if not exist %QT_DIR%\bin\Qt5Core.dll (
+      echo "No cache found, building qt" &
       call ./ci_tools/build_install_qt.bat
-    ) || (
-      echo "Found existing cache in %QT_DIR%"
+    ) else (
+      echo "Found existing cache in %QT_DIR%" &
       dir %QT_DIR%
     )
   - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
 
   # (e) Compile PyQt if needed (if no cache available)
-  - if not exist %PYQT_DIR%\ (
+  - if not exist %PYQT_DIR%\QtGui.pyi (
       echo "No cache found, building pyqt" &
       call ./ci_tools/build_pyqt.bat
-    ) || (
+    ) else (
       echo "Found existing cache in %PYQT_DIR%" &
       dir %PYQT_DIR%
     )

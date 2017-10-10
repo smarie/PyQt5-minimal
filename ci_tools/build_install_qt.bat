@@ -61,7 +61,7 @@ REM set LIB=C:5_deps\icu\dist\lib;C:5_deps\openssl-1.0.1e\dist\lib
 set LIB=
 set QMAKESPEC=
 set QTDIR=
-set PATH=%CD%\qtbase\bin;%CD%\gnuwin32\bin;%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%APPVEYOR_BUILD_FOLDER%\jom
+set "PATH=%CD%\qtbase\bin;%CD%\gnuwin32\bin;%PATH%"
 REM windows2unix() { local pathPcs=() split pathTmp IFS=\;; read -ra split <<< "$*"; for pathTmp in "${split[@],}"; do pathPcs+=( "/${pathTmp//+([:\\])//}" ); done; echo "${pathPcs[*]}"; }; systemrootP=$(windows2unix "$SYSTEMROOT"); export PATH="%CD%/qtbase/bin:%CD%/gnuwin32/bin:/c/msys2/mingw64/bin:/c/msys2/usr/bin:/c/Qt/qt5_deps/icu/dist/lib"
 echo Path is now %PATH%
 REM ;%SystemRoot%\System32
