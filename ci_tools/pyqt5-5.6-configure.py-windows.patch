@@ -1,0 +1,30 @@
+--- C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure.py	dim. avr. 24 12:55:08 2016
++++ C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure (2).py	mer. oct. 11 16:34:50 2017
+@@ -1934,0 +1935,4 @@ def run_qmake(target_config, verbose, pro_name, ma
++    # *** HACK change makefiles
++    lib_path = target_config.qmake[:target_config.qmake.find('/bin/qmake')] + '/lib'
++    fix_file(mf, lib_path)
++
+@@ -1938,0 +1943,8 @@ def run_qmake(target_config, verbose, pro_name, ma
++    # *** HACK change makefiles
++    if recursive:
++        import glob
++        all = [file for file in glob.glob('./**/Makefil*', recursive=True)]
++        print('found other makefiles: ' + str(all))
++        for mkfile in all:
++            fix_file(mkfile, lib_path)
++
+@@ -1941,0 +1954,13 @@ def run_qmake(target_config, verbose, pro_name, ma
++def fix_file(file_name, lib_path):
++    """
++    see https://stackoverflow.com/a/29489843/7262247 and see https://stackoverflow.com/a/12918400/7262247
++    replace "CXXFLAGS      = -pipe" with "CXXFLAGS      = -pipe -D_hypot=hypot"
++    """
++    print('HACK SMA -- fixing generated makefile : ' + str(file_name))
++    with open(file_name, 'r') as f:
++        mkfile = f.read()
++    mkfile = mkfile.replace('CXXFLAGS      = -pipe', 'CXXFLAGS      = -pipe -D_hypot=hypot')
++    with open(file_name, 'w') as f:
++        f.write(mkfile)
++
++
