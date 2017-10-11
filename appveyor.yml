@@ -55,7 +55,7 @@ install:
       echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%" &
       xcopy /S /Y /q %MSYS2_DIR% %MSYS2_DIR_CACHE%\ &
       move /Y %MSYS2_DIR_CACHE%\mingw32 %MSYS2_DIR_CACHE2% &
-      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3% &
+      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3%
     ) else (
       echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%, restoring it to %MSYS2_DIR%" &
       RMDIR %MSYS2_DIR% /s /q &
