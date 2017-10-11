@@ -45,6 +45,7 @@ install:
 #  - conda install pandoc -q
 
   # (c) setup msys2+mingw 64
+  - dir %MSYS2_DIR_CACHE%
   - if not exist %MSYS2_DIR_CACHE%\usr\bin\ruby.exe (
       echo "No cache found, setting up msys2 mingw 64 environment" &
       call ./ci_tools/setup_msys.bat &
