@@ -2,7 +2,10 @@
 
 REM source:
 REM   Primary sources : https://wiki.qt.io/MSYS2 and https://wiki.qt.io/MinGW-64-bit
-REM   Other reading: http://doc.qt.io/qt-5/windows-building.html, https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
+REM   Other readings:
+REM       http://doc.qt.io/qt-5/windows-building.html,
+REM       https://wiki.qt.io/Building_Qt_Desktop_for_Windows_with_MinGW
+REM       https://project-renard.github.io/doc/development/meeting-log/posts/2016/05/03/windows-build-with-msys2/
 
 REM before running this script the variable QT_DIR and QT_VER should exist
 

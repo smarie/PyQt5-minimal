@@ -13,6 +13,8 @@ environment:
       PYQT_DIR_REL: PyQt5.6
       MSYS2_DIR: "C:\\msys64"
       MSYS2_DIR_CACHE: "C:\\msys64_copy"
+      MSYS2_DIR_CACHE2: "C:\\msys64_copy_mingw32"
+      MSYS2_DIR_CACHE3: "C:\\msys64_copy_mingw64"
       # COMPILER: msys2
       # PLATFORM: x64
       MSYS2_ARCH: x86_64
@@ -21,6 +23,8 @@ environment:
 
 cache:
   - '%MSYS2_DIR_CACHE%'
+  - '%MSYS2_DIR_CACHE2%'
+  - '%MSYS2_DIR_CACHE3%'
   - '%QT_DIR_REL%'
   - '%PYQT_DIR_REL%'
 
@@ -48,12 +52,16 @@ install:
   - if not exist %MSYS2_DIR_CACHE%\usr\bin\ruby.exe (
       echo "No cache found, setting up msys2 mingw 64 environment" &
       call ./ci_tools/setup_msys.bat &
-      echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%" &
-      xcopy /S /Y /q %MSYS2_DIR% %MSYS2_DIR_CACHE%\
+      echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%" &
+      xcopy /S /Y /q %MSYS2_DIR% %MSYS2_DIR_CACHE%\ &
+      move /Y %MSYS2_DIR_CACHE%\mingw32 %MSYS2_DIR_CACHE2% &
+      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3% &
     ) else (
-      echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, restoring it to %MSYS2_DIR%" &
+      echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%, restoring it to %MSYS2_DIR%" &
       RMDIR %MSYS2_DIR% /s /q &
       xcopy /S /Y /q %MSYS2_DIR_CACHE% %MSYS2_DIR%\ &
+      xcopy /S /Y /q %MSYS2_DIR_CACHE2% %MSYS2_DIR%\mingw32 &
+      xcopy /S /Y /q %MSYS2_DIR_CACHE3% %MSYS2_DIR%\mingw64 &
       SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
     )
 
