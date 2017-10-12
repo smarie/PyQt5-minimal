@@ -1,7 +1,7 @@
 environment:
   global:
     # without this flag, debugging is a nightmare :)
-    - APPVEYOR_SAVE_CACHE_ON_ERROR: true
+    APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
     # Unfortunately this build does not work with miniconda 32 bit, or so it seems. To re-test one of these days...
 #    - PYTHON_VERSION: "3.5"
