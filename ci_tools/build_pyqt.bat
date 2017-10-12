@@ -15,7 +15,7 @@ for /F "tokens=1,2,3 delims=." %%a in ("%PYQT_VER%") do (
    set Minor=%%b
    set Revision=%%c
 )
-echo Qt version: Major: %Major%, Minor: %Minor%, Revision: %Revision%
+echo PyQt version: Major: %Major%, Minor: %Minor%, Revision: %Revision%
 
 set PYQT_VER_SHORT=%Major%
 set PYQT_ARCHIVE=PyQt%PYQT_VER_MAJOR%_gpl-%PYQT_VER%

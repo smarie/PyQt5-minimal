@@ -51,7 +51,7 @@ install:
       echo "Found existing cache in %QT_DIR%" &
       dir %QT_DIR%
     )
-  - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
+  - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;%PATH%
 
   # (e) Compile PyQt if needed (if no cache available)
   - if not exist %PYQT_DIR%\QtGui.pyi (
