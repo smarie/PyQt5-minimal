@@ -28,30 +28,32 @@ echo PYQT_SRC_URL: %PYQT_SRC_URL%
 echo "(a) Downloading PyQt sources from %PYQT_SRC_URL% in %CD%"
 appveyor DownloadFile %PYQT_SRC_URL% -FileName %PYQT_ARCHIVE%.tar.gz
 
-echo "(b) Unzipping PyQt sources in %PWD%"
+echo "(b) Unzipping PyQt sources in %CD%"
 7z x %PYQT_ARCHIVE%.tar.gz > nul
 7z x %PYQT_ARCHIVE%.tar > nul
 dir
 MOVE %APPVEYOR_BUILD_FOLDER%/%PYQT_ARCHIVE% %PYQT_DIR%
 
-echo "(c) Installing PyQt dependencies "
+REM echo "(c) Installing PyQt dependencies "
 REM set PATH=C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\Qt\4.3.3\bin;C:\MinGW\bin
-g++ -v
-qmake -v
+REM g++ -v
+REM qmake -v
 REM from https://wiki.qt.io/Install_Qt_5_on_Ubuntu: install opengl libraries so as to be able to build QtGui
 
 cd %PYQT_DIR%
-echo "(d) Patching PyQt configure.py in %CD%"
+echo "(c) Patching PyQt configure.py in %CD%"
 REM apply our HACK patch to fix the generated makefiles
 REM echo "patching generated makefiles to fix the mingw _hypot bug"
 REM see https://stackoverflow.com/a/29489843/7262247 and see https://stackoverflow.com/a/12918400/7262247
 REM TODO replace 'CXXFLAGS      = -pipe' with 'CXXFLAGS      = -pipe -D_hypot=hypot' in all makefiles
 patch ./configure.py < ../ci_tools/pyqt%PYQT_VER_MAJOR%-%PYQT_VER%-configure.py-windows.patch
 
-echo "(e) Configuring PyQt in %CD%"
-python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core --spec=win32-g++
+echo "(d) Configuring PyQt in %CD%"
+python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core --spec=win32-g++ --verbose
 REM --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
 
+echo "(d) additional debug info"
+type qtdetail.mk
 
 echo "(f) Compiling PyQt in %CD%"
 mingw32-make -j 4
