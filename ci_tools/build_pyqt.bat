@@ -29,7 +29,7 @@ echo "(a) Downloading PyQt sources from %PYQT_SRC_URL% in %CD%"
 appveyor DownloadFile %PYQT_SRC_URL% -FileName %PYQT_ARCHIVE%.tar.gz
 
 echo "(b) Unzipping PyQt sources in %PWD%"
-7z x %PYQT_ARCHIVE%.tar.xz > nul
+7z x %PYQT_ARCHIVE%.tar.gz > nul
 7z x %PYQT_ARCHIVE%.tar > nul
 dir
 MOVE %APPVEYOR_BUILD_FOLDER%/%PYQT_ARCHIVE% %PYQT_DIR%
