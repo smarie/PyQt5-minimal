@@ -15,6 +15,7 @@ environment:
       MSYS2_DIR_CACHE: "C:\\msys64_copy"
       MSYS2_DIR_CACHE2: "C:\\msys64_copy_mingw32"
       MSYS2_DIR_CACHE3: "C:\\msys64_copy_mingw64"
+      MSYS2_DIR_CACHE4: "C:\\msys64_copy_usr"
       # COMPILER: msys2
       # PLATFORM: x64
       MSYS2_ARCH: x86_64
@@ -25,6 +26,7 @@ cache:
   - '%MSYS2_DIR_CACHE%'
   - '%MSYS2_DIR_CACHE2%'
   - '%MSYS2_DIR_CACHE3%'
+  - '%MSYS2_DIR_CACHE4%'
   - '%QT_DIR_REL%'
   - '%PYQT_DIR_REL%'
 
@@ -49,19 +51,21 @@ install:
 #  - conda install pandoc -q
 
   # (c) setup msys2+mingw 64
-  - if not exist %MSYS2_DIR_CACHE%\usr\bin\ruby.exe (
+  - if not exist %MSYS2_DIR_CACHE4%\bin\ruby.exe (
       echo "No cache found, setting up msys2 mingw 64 environment" &
       call ./ci_tools/setup_msys.bat &
-      echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%" &
+      echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2%, %MSYS2_DIR_CACHE3% and %MSYS2_DIR_CACHE4%" &
       xcopy /S /Y /q %MSYS2_DIR% %MSYS2_DIR_CACHE%\ &
       move /Y %MSYS2_DIR_CACHE%\mingw32 %MSYS2_DIR_CACHE2% &
-      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3%
+      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3% &
+      move /Y %MSYS2_DIR_CACHE%\usr %MSYS2_DIR_CACHE4%
     ) else (
-      echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2% and %MSYS2_DIR_CACHE3%, restoring it to %MSYS2_DIR%" &
+      echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2%, %MSYS2_DIR_CACHE3% and %MSYS2_DIR_CACHE4%, restoring it to %MSYS2_DIR%" &
       RMDIR %MSYS2_DIR% /s /q &
       xcopy /S /Y /q %MSYS2_DIR_CACHE% %MSYS2_DIR%\ &
       xcopy /S /Y /q %MSYS2_DIR_CACHE2% %MSYS2_DIR%\mingw32 &
       xcopy /S /Y /q %MSYS2_DIR_CACHE3% %MSYS2_DIR%\mingw64 &
+      xcopy /S /Y /q %MSYS2_DIR_CACHE4% %MSYS2_DIR%\usr &
       SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
     )
 
