@@ -86,5 +86,5 @@ mingw32-make -j 4 install
 REM --platform win32-g++
 
 cd %APPVEYOR_BUILD_FOLDER%
-echo "(e) Cleaning up and returning to appveyor build dir %CD%"
-RMDIR /S /Q %QT_SRC_DIR%
+echo "(e) Returning to appveyor build dir %CD%"
+REM RMDIR /S /Q %QT_SRC_DIR%

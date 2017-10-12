@@ -12,10 +12,6 @@ environment:
       PYQT_VER: 5.6
       PYQT_DIR_REL: PyQt5.6
       MSYS2_DIR: "C:\\msys64"
-      MSYS2_DIR_CACHE: "C:\\msys64_copy"
-      MSYS2_DIR_CACHE2: "C:\\msys64_copy_mingw32"
-      MSYS2_DIR_CACHE3: "C:\\msys64_copy_mingw64"
-      MSYS2_DIR_CACHE4: "C:\\msys64_copy_usr"
       # COMPILER: msys2
       # PLATFORM: x64
       MSYS2_ARCH: x86_64
@@ -23,10 +19,7 @@ environment:
       BIT: 64
 
 cache:
-  - '%MSYS2_DIR_CACHE%'
-  - '%MSYS2_DIR_CACHE2%'
-  - '%MSYS2_DIR_CACHE3%'
-  - '%MSYS2_DIR_CACHE4%'
+  # caching MSYS2 takes more time than installing
   - '%QT_DIR_REL%'
   - '%PYQT_DIR_REL%'
 
@@ -51,35 +44,20 @@ install:
 #  - conda install pandoc -q
 
   # (c) setup msys2+mingw 64
-  - if not exist %MSYS2_DIR_CACHE4%\bin\ruby.exe (
-      echo "No cache found, setting up msys2 mingw 64 environment" &
-      call ./ci_tools/setup_msys.bat &
-      echo "Copying %MSYS2_DIR% to %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2%, %MSYS2_DIR_CACHE3% and %MSYS2_DIR_CACHE4%" &
-      xcopy /S /Y /q %MSYS2_DIR% %MSYS2_DIR_CACHE%\ &
-      move /Y %MSYS2_DIR_CACHE%\mingw32 %MSYS2_DIR_CACHE2% &
-      move /Y %MSYS2_DIR_CACHE%\mingw64 %MSYS2_DIR_CACHE3% &
-      move /Y %MSYS2_DIR_CACHE%\usr %MSYS2_DIR_CACHE4%
-    ) else (
-      echo "Found existing msys2 cache in %MSYS2_DIR_CACHE%, %MSYS2_DIR_CACHE2%, %MSYS2_DIR_CACHE3% and %MSYS2_DIR_CACHE4%, restoring it to %MSYS2_DIR%" &
-      RMDIR %MSYS2_DIR% /s /q &
-      xcopy /S /Y /q %MSYS2_DIR_CACHE% %MSYS2_DIR%\ &
-      xcopy /S /Y /q %MSYS2_DIR_CACHE2% %MSYS2_DIR%\mingw32 &
-      xcopy /S /Y /q %MSYS2_DIR_CACHE3% %MSYS2_DIR%\mingw64 &
-      xcopy /S /Y /q %MSYS2_DIR_CACHE4% %MSYS2_DIR%\usr &
-      SET "PATH=%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\usr\bin;%PATH%"
-    )
+  # caching MSYS2 takes more time than installing
+  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
 
   # (d) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # => build & install Qt from sources instead: if needed (if no cache available)
-#  - if not exist %QT_DIR%\bin\Qt5Core.dll (
-#      echo "No cache found, building qt" &
-#      call ./ci_tools/build_install_qt.bat
-#    ) else (
-#      echo "Found existing cache in %QT_DIR%" &
-#      dir %QT_DIR%
-#    )
-#  - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
+  - if not exist %QT_DIR%\bin\Qt5Core.dll (
+      echo "No cache found, building qt" &
+      call ./ci_tools/build_install_qt.bat
+    ) else (
+      echo "Found existing cache in %QT_DIR%" &
+      dir %QT_DIR%
+    )
+  - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
 
   # (e) Compile PyQt if needed (if no cache available)
 #  - if not exist %PYQT_DIR%\QtGui.pyi (
