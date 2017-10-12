@@ -1,11 +1,14 @@
 environment:
+  global:
+    # without this flag, debugging is a nightmare :)
+    - APPVEYOR_SAVE_CACHE_ON_ERROR: true
   matrix:
-    # Unfortunately this does not work with miniconda 32 bit: resulting cx_freeze still contains 64/32
+    # Unfortunately this build does not work with miniconda 32 bit, or so it seems. To re-test one of these days...
 #    - PYTHON_VERSION: "3.5"
-#      PYTHON: "C:\\Python35"
+#      # PYTHON: "C:\\Python35"
 #      MINICONDA: "C:\\Miniconda35"
     - PYTHON_VERSION: "3.5"
-      PYTHON: "C:\\Python35-x64"
+      # PYTHON: "C:\\Python35-x64"
       MINICONDA: "C:\\Miniconda35-x64"
       QT_VER: 5.6.3
       QT_DIR_REL: Qt5.6.3
@@ -15,12 +18,12 @@ environment:
       MSYSTEM: MINGW64
 
 cache:
-  # caching MSYS2 takes more time than installing
+  # caching MSYS2 takes more time than installing, so only cache Qt target and PyQt directories.
   - '%QT_DIR_REL%'
   - '%PYQT_DIR_REL%'
 
 init:
-  - "ECHO %PYTHON_VERSION% %PYTHON% %MINICONDA%"
+  - "ECHO %PYTHON_VERSION% %MINICONDA%"  # %PYTHON%
 
 # **** Miniconda version ****
 install:
