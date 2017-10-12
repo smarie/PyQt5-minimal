@@ -1,5 +1,5 @@
---- C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure.py	dim. avr. 24 12:55:08 2016
-+++ C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure (2).py	mer. oct. 11 16:34:50 2017
+--- C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure (2).py	dim. avr. 24 12:55:08 2016
++++ C:/W_dev/_pycharm_workspace/0_develop-and-proxy/configure.py	jeu. oct. 12 16:00:11 2017
 @@ -1934,0 +1935,4 @@ def run_qmake(target_config, verbose, pro_name, ma
 +    # *** HACK change makefiles
 +    lib_path = target_config.qmake[:target_config.qmake.find('/bin/qmake')] + '/lib'
@@ -27,4 +27,13 @@
 +    with open(file_name, 'w') as f:
 +        f.write(mkfile)
 +
++
+@@ -2060,0 +2086,4 @@ def get_command_output(cmd, and_stderr=False):
++    # HACK for windows paths
++    cmd = cmd.replace('/','\\')
++    print('Executing command ' + cmd)
++
+@@ -2201,0 +2231,3 @@ def compile_qt_program(target_config, verbose, nam
++    if verbose:
++        sys.stdout.write("Compiling qt program " + name + "\n")
 +
