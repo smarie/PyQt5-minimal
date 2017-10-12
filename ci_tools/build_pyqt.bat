@@ -17,11 +17,11 @@ for /F "tokens=1,2,3 delims=." %%a in ("%PYQT_VER%") do (
 )
 echo PyQt version: Major: %Major%, Minor: %Minor%, Revision: %Revision%
 
-set PYQT_VER_SHORT=%Major%
+set PYQT_VER_MAJOR=%Major%
 set PYQT_ARCHIVE=PyQt%PYQT_VER_MAJOR%_gpl-%PYQT_VER%
 set PYQT_SRC_URL=https://sourceforge.net/projects/pyqt/files/PyQt%PYQT_VER_MAJOR%/PyQt-%PYQT_VER%/%PYQT_ARCHIVE%.tar.gz/download
 
-echo PYQT_VER_SHORT: %PYQT_VER_SHORT%
+echo PYQT_VER_MAJOR: %PYQT_VER_MAJOR%
 echo PYQT_ARCHIVE: %PYQT_ARCHIVE%
 echo PYQT_SRC_URL: %PYQT_SRC_URL%
 
@@ -46,10 +46,10 @@ REM apply our HACK patch to fix the generated makefiles
 REM echo "patching generated makefiles to fix the mingw _hypot bug"
 REM see https://stackoverflow.com/a/29489843/7262247 and see https://stackoverflow.com/a/12918400/7262247
 REM TODO replace 'CXXFLAGS      = -pipe' with 'CXXFLAGS      = -pipe -D_hypot=hypot' in all makefiles
-patch ./configure.py < ../ci_tools/pyqt%PYQT_VER_SHORT%-%PYQT_VER%-configure.py-windows.patch
+patch ./configure.py < ../ci_tools/pyqt%PYQT_VER_MAJOR%-%PYQT_VER%-configure.py-windows.patch
 
 echo "(e) Configuring PyQt in %CD%"
-python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core --spec=win32-g++ --verbose
+python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core --spec=win32-g++
 REM --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
 
 
