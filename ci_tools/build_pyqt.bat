@@ -32,6 +32,8 @@ echo "(b) Unzipping PyQt sources in %CD%"
 7z x %PYQT_ARCHIVE%.tar.gz > nul
 7z x %PYQT_ARCHIVE%.tar > nul
 dir
+
+echo "(c) Moving PyQt sources from %CD% to %PYQT_DIR%"
 MOVE %APPVEYOR_BUILD_FOLDER%/%PYQT_ARCHIVE% %PYQT_DIR%
 
 REM echo "(c) Installing PyQt dependencies "

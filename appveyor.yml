@@ -20,7 +20,7 @@ environment:
 cache:
   # caching MSYS2 takes more time than installing, so only cache Qt target and PyQt directories.
   - '%QT_DIR_REL%'
-  - '%PYQT_DIR_REL%'
+  - '%PYQT_DIR_REL% -> ci_tools\build_pyqt.bat'
 
 init:
   - "ECHO %PYTHON_VERSION% %MINICONDA%"  # %PYTHON%
