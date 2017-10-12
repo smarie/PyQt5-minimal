@@ -12,11 +12,7 @@ environment:
       PYQT_VER: 5.6
       PYQT_DIR_REL: PyQt5.6
       MSYS2_DIR: "C:\\msys64"
-      # COMPILER: msys2
-      # PLATFORM: x64
-      MSYS2_ARCH: x86_64
       MSYSTEM: MINGW64
-      BIT: 64
 
 cache:
   # caching MSYS2 takes more time than installing
@@ -35,21 +31,16 @@ install:
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
-  # - conda env create -f "ci_tools/conda_env.yml" -n envswitch >> lets try differently
 
   # (b) base conda environment
   - conda create -n envswitch python=%PYTHON_VERSION%
   - activate envswitch
   - conda install "python=%PYTHON_VERSION%" "sip" "pip>=9.0.1" "setuptools=36" -q
-#  - conda install pandoc -q
 
-  # (c) setup msys2+mingw 64
-  # caching MSYS2 takes more time than installing
+  # (c) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
   - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
 
-  # (d) Compile and install Qt
-  # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
-  # => build & install Qt from sources instead: if needed (if no cache available)
+  # (d) Compile and install Qt if needed (if no cache available)
   - if not exist %QT_DIR%\bin\Qt5Core.dll (
       echo "No cache found, building qt" &
       call ./ci_tools/build_install_qt.bat
@@ -60,14 +51,14 @@ install:
   - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;$PATH
 
   # (e) Compile PyQt if needed (if no cache available)
-#  - if not exist %PYQT_DIR%\QtGui.pyi (
-#      echo "No cache found, building pyqt" &
-#      call ./ci_tools/build_pyqt.bat
-#    ) else (
-#      echo "Found existing cache in %PYQT_DIR%" &
-#      dir %PYQT_DIR%
-#    )
-#  - echo "Installing PyQt to python site-packages" & cd "%PYQT_DIR%" & mingw32-make -j 4 install
+  - if not exist %PYQT_DIR%\QtGui.pyi (
+      echo "No cache found, building pyqt" &
+      call ./ci_tools/build_pyqt.bat
+    ) else (
+      echo "Found existing cache in %PYQT_DIR%" &
+      dir %PYQT_DIR%
+    )
+  - echo "Installing PyQt to python site-packages" & cd "%PYQT_DIR%" & mingw32-make -j 4 install
 
 build: off
 
@@ -76,12 +67,12 @@ test_script:
 
 after_test:
   # ***packaging for releases***
-#  - cd %APPVEYOR_BUILD_FOLDER%
-#  - echo "Creating the appropriate archives into dist/" & mkdir dist
-#  #- mv %QT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64/
-#  - 7z a -ttar -so Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar Qt%QT_VER% | 7z a -si dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz
-#  #- mv %PYQT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64/
-#  - 7z a -ttar -so PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar PyQt%PYQT_VER% | 7z a -si dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - echo "Creating the appropriate archives into dist/" & mkdir dist
+  #- mv %QT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64/
+  - 7z a -ttar -so Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar Qt%QT_VER% | 7z a -si dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz
+  #- mv %PYQT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64/
+  - 7z a -ttar -so PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar PyQt%PYQT_VER% | 7z a -si dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz
 
 artifacts:
 #  # bdist_wheel puts your built wheel in the dist directory
