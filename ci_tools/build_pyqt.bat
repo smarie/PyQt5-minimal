@@ -53,7 +53,8 @@ python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --
 REM --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
 
 echo "(d) additional debug info"
-type qtdetail.mk
+dir
+dir release
 
 echo "(f) Compiling PyQt in %CD%"
 mingw32-make -j 4
