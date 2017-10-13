@@ -13,7 +13,8 @@ environment:
       QT_VER: 5.6.3
       QT_DIR_REL: Qt5.6.3
       PYQT_VER: 5.6
-      PYQT_DIR_REL: PyQt5.6
+      PYQT_DIR_REL: PyQt5.6-with_src
+      PYQT_DIST_REL: PyQt5.6
       MSYS2_DIR: "C:\\msys64"
       MSYSTEM: MINGW64
 
@@ -72,23 +73,38 @@ test_script:
 
 after_test:
   # ***packaging for releases***
-  - cd %APPVEYOR_BUILD_FOLDER%
-  - echo "Creating the appropriate archives into dist/" & mkdir dist
-  #- mv %QT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64/
-  - 7z a -ttar -so Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar Qt%QT_VER% | 7z a -si dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz
-  #- mv %PYQT_DIR% %APPVEYOR_BUILD_FOLDER%/dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64/
-  - 7z a -ttar -so PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar PyQt%PYQT_VER% | 7z a -si dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz
+  - echo "Creating the appropriate archives into dist/" &
+    cd %APPVEYOR_BUILD_FOLDER% & 
+    mkdir dist & 
+    set SUF=minimal-Windows-x86_64-MinGW64
+
+  # Qt
+  - echo "Creating Qt archive" &
+    7z a -ttar -so Qt%QT_VER%_lgpl_%SUF%.tar %QT_DIR_REL% | 7z a -si dist/Qt%QT_VER%_lgpl_%SUF%.tar.gz
+
+  # PyQt sources+binaries
+  - echo "Creating PyQt+src archive" & 
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar %PYQT_DIR_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar.gz
+
+  # PyQt binaries only
+  - echo "Creating PyQt archive" &
+    mkdir %PYQT_DIST_REL% &
+    cd %PYQT_DIR_REL% &
+    # copy all interesting files *.dll *.pyi *.pyd
+    for /r %%i in (*dll *pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
+    # copy __init__.py
+    xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
+    # finally create the archive
+    cd %APPVEYOR_BUILD_FOLDER% &
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz
+
 
 artifacts:
-#  # bdist_wheel puts your built wheel in the dist directory
+  - path: 'dist/Qt%QT_VER%_lgpl_%SUF%.tar.gz'
 
-  - path: 'dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz'
-#    type: zip
+  - path: 'dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz'
+  - path: 'dist/PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar.gz'
 
-  - path: 'dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz'
-#    type: zip
-
-#  - path: dist\*
 
 on_success:
 #  You can use this step to upload your artifacts to a public website.

@@ -7,7 +7,12 @@ python:
 
 env:
   matrix:
-  - QT_VER=5.6.3 PYQT_VER=5.6 CACHE_NAME=Qt5.6.3-PyQt5.6
+  - QT_VER=5.6.3
+    QT_DIR=$TRAVIS_BUILD_DIR/Qt$QT_VER
+    PYQT_VER=5.6
+    PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER-with_src
+    PYQT_DIST_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER
+    CACHE_NAME=Qt5.6.3-PyQt5.6
   # - QT_VER=5.9.2 PYQT_VER=5.9 CACHE_NAME=Qt5.9.2-PyQt5.9  >> does not work
   global:
   - GH_REF: git@github.com:smarie/PyQt5-minimal.git
@@ -15,8 +20,8 @@ env:
 # cache: pip
 cache:
   directories:
-  - 'Qt$QT_VER'
-  - 'PyQt$PYQT_VER'
+  - '$QT_DIR'
+  - '$PYQT_DIR'
 
 install:
   - sudo apt-get install pandoc
@@ -25,7 +30,7 @@ install:
   - sudo apt-get install rpm
   - sudo apt-get install alien
 
-  # *** install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
+  # (a) install conda - from https://conda.io/docs/user-guide/tasks/use-conda-with-travis-ci.html
   - echo "downloading miniconda"; if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       sudo wget -q https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
@@ -35,15 +40,15 @@ install:
   - echo "configuring miniconda"; hash -r; conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
-  # *** install useful dependencies
+  # (b) setup conda environment
   - echo "conda-installing python, pip, and setuptools"; conda install "python=$TRAVIS_PYTHON_VERSION" "sip" "pip" "setuptools" -q
   # - echo "pip-installing sip"; pip install "sip>=4.19.3"
 
-  # *** Compile and install Qt ******
+  # (c) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # => build & install Qt from sources instead:
   - cd "$TRAVIS_BUILD_DIR"
-  - export QT_DIR="$TRAVIS_BUILD_DIR/Qt$QT_VER"; echo $QT_DIR
+  - echo $QT_DIR
   # only build qt if needed (no cached version yet)
   # warning NO QUOTES in the test
   - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
@@ -59,7 +64,7 @@ install:
 script:
   # ********* Compile PyQt ***********
   - cd "$TRAVIS_BUILD_DIR"
-  - export PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER; echo $PYQT_DIR
+  - echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
   - if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
@@ -75,12 +80,32 @@ script:
 
 after_success:
 # ***packaging for releases***
-  - mkdir "$TRAVIS_BUILD_DIR/dist"
-  - cd $TRAVIS_BUILD_DIR
-  # create a tar.gz in dist/, containing the Qt distribution
-  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/Qt""$QT_VER"_lgpl_minimal-Linux-x86_64.tar.gz Qt$QT_VER >/dev/null
-  # create a tar.gz in dist/, containing the PyQt distribution
-  - sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_minimal-Linux-x86_64.tar.gz PyQt$PYQT_VER >/dev/null
+  - echo "Creating the appropriate archives into dist/" ;
+    cd $TRAVIS_BUILD_DIR;
+    mkdir dist;
+    export SUF=minimal-Linux-x86_64
+
+  # Qt
+  - echo "Creating Qt archive" ;
+    sudo tar czvf "$TRAVIS_BUILD_DIR/dist/Qt""$QT_VER"_lgpl_$SUF.tar.gz Qt$QT_VER >/dev/null
+
+  # PyQt sources+binaries
+  - echo "Creating PyQt+src archive" ;
+    export PYQT_SUF=_gpl_%SUF% ;
+    sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_$SUF-with_src.tar.gz PyQt$PYQT_VER-with_src >/dev/null
+
+  # PyQt binaries only
+  - echo "Creating PyQt archive" ;
+    mkdir $PYQT_DIST_DIR ;
+    cd $PYQT_DIR ;
+    # copy all interesting files *.dll *.pyi *.pyd
+    find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} $PYQT_DIST_DIR \; ;
+    cp ./__init__.py ${PYQT_INSTALL_DIR}  # copy __init__.py
+    # finally create the archive
+    cd $TRAVIS_BUILD_DIR;
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_DIR% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz
+    sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_$SUF.tar.gz PyQt$PYQT_VER >/dev/null
+
   - ls dist
 #
 #  # ***documentation***
