@@ -82,11 +82,11 @@ after_test:
 artifacts:
 #  # bdist_wheel puts your built wheel in the dist directory
 
-  - path: 'dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64'
-    type: zip
+  - path: 'dist/Qt%QT_VER%_lgpl_minimal-Windows-x86_64.tar.gz'
+#    type: zip
 
-  - path: 'dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64'
-    type: zip
+  - path: 'dist/PyQt%PYQT_VER%_gpl_minimal-Windows-x86_64.tar.gz'
+#    type: zip
 
 #  - path: dist\*
 
