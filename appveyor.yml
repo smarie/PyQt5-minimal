@@ -30,18 +30,18 @@ install:
   - set QT_DIR=%APPVEYOR_BUILD_FOLDER%\%QT_DIR_REL%
   - set PYQT_DIR=%APPVEYOR_BUILD_FOLDER%\%PYQT_DIR_REL%
 
-  # (a) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
+  # (a) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
+  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
+
+  # (b) setup conda, see  https://www.appveyor.com/docs/build-environment/#miniconda and http://help.appveyor.com/discussions/questions/6802-appveyor-with-conda
   - "set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%PATH%"
   - conda config --set always_yes yes --set changeps1 no
   # - conda update -q conda NO !!!!  #  conda info -a  # Use this to debug conda
 
-  # (b) base conda environment
+  # (c) base conda environment
   - conda create -n envswitch python=%PYTHON_VERSION%
   - activate envswitch
   - conda install "python=%PYTHON_VERSION%" "sip" "pip>=9.0.1" "setuptools=36" -q
-
-  # (c) setup msys2+mingw 64 (caching MSYS2 takes more time than installing it)
-  - echo "Setting up msys2 mingw 64 environment" & call ./ci_tools/setup_msys.bat
 
   # (d) Compile and install Qt if needed (if no cache available)
   - if not exist %QT_DIR%\bin\Qt5Core.dll (
@@ -54,6 +54,7 @@ install:
   - echo "Adding Qt to PATH" & set PATH=%QT_DIR%/bin;%PATH%
 
   # (e) Compile PyQt if needed (if no cache available)
+  # Note: conda should be BEFORE MSYS2 in path for that
   - if not exist %PYQT_DIR%\QtGui.pyi (
       echo "No cache found, building pyqt" &
       call ./ci_tools/build_pyqt.bat

@@ -28,11 +28,6 @@
 +        f.write(mkfile)
 +
 +
-@@ -2060,0 +2086,4 @@ def get_command_output(cmd, and_stderr=False):
-+    # HACK for windows paths
-+    cmd = cmd.replace('/','\\')
-+    print('Executing command ' + cmd)
-+
 @@ -2201,0 +2231,3 @@ def compile_qt_program(target_config, verbose, nam
 +    if verbose:
 +        sys.stdout.write("Compiling qt program " + name + "\n")
