@@ -54,9 +54,5 @@ echo "(e) Configuring PyQt in %CD%"
 python configure.py --no-python-dbus --no-qml-plugin --no-qsci-api --no-tools --confirm-license --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core --spec=win32-g++ --verbose
 REM --qmake $HOME/miniconda/bin/qmake --sip $HOME/miniconda/bin/sip --verbose
 
-REM echo "(d) additional debug info"
-REM dir
-REM dir release
-
 echo "(f) Compiling PyQt in %CD%"
 mingw32-make -j 4
