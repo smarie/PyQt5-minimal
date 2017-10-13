@@ -55,7 +55,7 @@ install:
 
   # (e) Compile PyQt if needed (if no cache available)
   # Note: conda should be BEFORE MSYS2 in path for that
-  - if not exist %PYQT_DIR%\QtGui.pyi (
+  - if not exist %PYQT_DIR%\QtGui\QtGui.pyd (
       echo "No cache found, building pyqt" &
       RMDIR /S /Q %PYQT_DIR% &
       call ./ci_tools/build_pyqt.bat
