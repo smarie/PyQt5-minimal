@@ -84,23 +84,23 @@ after_test:
 
   # PyQt sources+binaries
   - echo "Creating PyQt+src archive" & 
-    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar %PYQT_DIR_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar.gz
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%-with_src.tar %PYQT_DIR_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%-with_src.tar.gz
 
-  # PyQt binaries only
+  # PyQt binaries only (note: we dont include the *.dll since they dont seem to be needed, they are not copied by the standard pyqt installer)
   - echo "Creating PyQt archive" &
     mkdir %PYQT_DIST_REL% &
     cd %PYQT_DIR_REL% &
-    echo "copy all interesting files *.dll *.pyi *.pyd" & for /r %%i in (*dll *pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
+    echo "copy all interesting files *.pyi *.pyd" & for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
     echo "copy __init__.py" & xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
     echo "finally create the archive" & cd %APPVEYOR_BUILD_FOLDER% &
-    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar.gz
 
 
 artifacts:
   - path: 'dist/Qt%QT_VER%_lgpl_%SUF%.tar.gz'
 
-  - path: 'dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz'
-  - path: 'dist/PyQt%PYQT_VER%_gpl_%SUF%-with_src.tar.gz'
+  - path: 'dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar.gz'
+  - path: 'dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%-with_src.tar.gz'
 
 
 on_success:
