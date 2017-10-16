@@ -68,8 +68,7 @@ install:
 
 build: off
 
-test_script:
-  # nothing here
+test: off
 
 after_test:
   # ***packaging for releases***
