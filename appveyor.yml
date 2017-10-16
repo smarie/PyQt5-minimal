@@ -7,7 +7,7 @@ environment:
 #    - PYTHON_VERSION: "3.5"
 #      # PYTHON: "C:\\Python35"
 #      MINICONDA: "C:\\Miniconda35"
-    - PYTHON_VERSION: "3.5"
+    - PYTHON_VERSION: "3.6"
       # PYTHON: "C:\\Python35-x64"
       MINICONDA: "C:\\Miniconda35-x64"
       QT_VER: 5.6.3
@@ -68,7 +68,8 @@ install:
 
 build: off
 
-test: off
+test_script:
+  - echo "No tests here, but we want after_test to trigger :)"
 
 after_test:
   # ***packaging for releases***
