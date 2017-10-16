@@ -79,7 +79,7 @@ script:
 #  - pip install .
 
 after_success:
-# ***packaging for releases***
+  # ***packaging for releases***
   - echo "Creating the appropriate archives into dist/" ;
     cd $TRAVIS_BUILD_DIR;
     mkdir dist;
@@ -98,12 +98,10 @@ after_success:
   - echo "Creating PyQt archive" ;
     mkdir $PYQT_DIST_DIR ;
     cd $PYQT_DIR ;
-    # copy all interesting files *.dll *.pyi *.pyd
-    find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} $PYQT_DIST_DIR \; ;
-    cp ./__init__.py ${PYQT_INSTALL_DIR}  # copy __init__.py
-    # finally create the archive
-    cd $TRAVIS_BUILD_DIR;
-    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_DIR% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz
+    find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} $PYQT_DIST_DIR \; ;  # copy all interesting files *.dll *.pyi *.pyd
+    cp ./__init__.py ${PYQT_INSTALL_DIR};  # copy __init__.py
+    cd $TRAVIS_BUILD_DIR; # finally create the archive
+    7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_DIR% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz;
     sudo tar czvf "$TRAVIS_BUILD_DIR/dist/PyQt""$PYQT_VER"_gpl_$SUF.tar.gz PyQt$PYQT_VER >/dev/null
 
   - ls dist

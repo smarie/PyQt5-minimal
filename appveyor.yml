@@ -90,12 +90,9 @@ after_test:
   - echo "Creating PyQt archive" &
     mkdir %PYQT_DIST_REL% &
     cd %PYQT_DIR_REL% &
-    # copy all interesting files *.dll *.pyi *.pyd
-    for /r %%i in (*dll *pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
-    # copy __init__.py
-    xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
-    # finally create the archive
-    cd %APPVEYOR_BUILD_FOLDER% &
+    for /r %%i in (*dll *pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &  # copy all interesting files *.dll *.pyi *.pyd
+    xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &  # copy __init__.py
+    cd %APPVEYOR_BUILD_FOLDER% &  # finally create the archive
     7z a -ttar -so PyQt%PYQT_VER%_gpl_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_%SUF%.tar.gz
 
 
