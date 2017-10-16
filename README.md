@@ -1,34 +1,76 @@
 # PyQt5-minimal
 
-[![Build Status](https://travis-ci.org/smarie/PyQt5-minimal.svg?branch=Qt5.6.3_PyQt_5.6_Python3.5)](https://travis-ci.org/smarie/PyQt5-minimal)
+[![Build Status](https://travis-ci.org/smarie/PyQt5-minimal.svg?branch=Qt5.6.3_PyQt_5.6_Python3.5)](https://travis-ci.org/smarie/PyQt5-minimal)[![Build status](https://ci.appveyor.com/api/projects/status/5v9xec097c99h8ox?svg=true)](https://ci.appveyor.com/project/smarie/pyqt5-minimal)
 
-This project consists in a set of build scripts for the continuous integration engine, so as to build a minimal version of the Qt LGPL and PyQt5 GPL packages for linux.
+A set of build scripts for the Travis and Appveyor continuous integration engines, so as to build a minimal version of the Qt LGPL and PyQt5 GPL packages for linux64 and windows+mingw64. 
 
-This need came from project [envswitcher-gui](https://github.com/smarie/env-switcher-gui), which is a python app relying on PyQt5 and frozen into an executable using cx_Freeze. With the default PyQt distribution available in conda, the executable distribution ended up being as large as 80Mo! There were two reasons to this: 
+#### Main purpose: (much) smaller cx-frozen PyQt applications  
 
-* Qt was built using ICU, which brings quite large libraries
-* several non-core usused Qt modules were included in PyQt
+This need came from project [envswitcher-gui](https://github.com/smarie/env-switcher-gui), which is a python app relying on PyQt5, frozen into an executable using cx_Freeze. With the default Qt+PyQt distribution available from conda, the executable distribution archive ended up being as large as 80Mo! There were two reasons to this: 
+
+* The Qt available in conda is built using ICU, which brings quite large libraries
+* The PyQt available in conda contains most non-core Qt modules, which were not used by the project but also take some space on disk
+
+With this project we recompile Qt and PyQt using the apropriate build configuration options (see below), so that the resulting size is much smaller.
+
+#### Side-effect: reference scripts for Qt and PyQt compilation
+
+Building Qt and PyQt yourself might not be trivial, because you have a lot of open choices left and some of them do not work. A side-effect of this project is that it provides reference scripts for building Qt and PyQt yourself on linux and windows+msys2/mingw64 platforms. Simply follow the same steps as executed in `.travis.yml` or `appveyor.yml`, in particular they end up calling three scripts:
+
+* **ci_tools/setup_msys.bat** (for windows targets only): sets up msys2 with mingw64 toolchain
+* **ci_tools/build_install_qt\[.sh/.bat\]**: downloads, configures, builds and installs Qt
+* **ci_tools/build_pyqt\[.sh/.bat\]**: downloads, configures, patches and builds PyQt. The patch is actually needed because Qt-generated Makefiles are not correct, on linux they need an additional -L<xxx> option for the linker, and on windows they need an additional CXXFLAG -D_hypot=hypot to fix an issue with mingw64's math library.
 
 ## Usage
 
 In the [releases page](https://github.com/smarie/PyQt5-minimal/releases) you will find two kind of release packages:
 
-* `Qt*.tar.gz` files are intermediate Qt binary distributions created in the build process, build with the options described below. Simply extract anywhere and add to your PATH, that way your PyQt distribution (below) will be able to load. Not sure that the included Qt toolchain (qmake) will work since the 'prefix' might not be the same on your computer than when the distribution has been built on Travis...
+* `Qt*.tar.gz` files are Qt binary distributions created in the build process, build with the options described below. 
 
-* `PyQt*.tar.gz` files are PyQt 'ready-to-install' distributions. PyQt normal installation procedure would be to extract anywhere and run `make install` in the root directory, in order to install the package in your current python environment. However this does not work if your folder structure is not the same than the one we use in the Travis continuous integration engine. Therefore you have to perform the same thing than `make install` manually, that is, to copy the interesting files in your current python environment's `site-packages` folder. For example (assuming current folder is the extracted PyQt archive's root folder):
+* `PyQt*.tar.gz` files are PyQt 'ready-to-install' distributions. 
 
+
+### Installing the Qt-minimal binary distribution
+
+This step is probably optional, since on some targets 
+
+Simply extract the selected `Qt*.tar.gz` archive anywhere and add to your PATH. That way, your PyQt distribution will be able to (1) load correctly when your python application will do `import PyQt5` and (2) package correctly using cx_Freeze.
+
+Not sure that the included Qt **toolchain** (`qmake`) will continue to work if you extract it on your machine to a different path than the one used at build time on Travis/Appveyor (respectively `/home/travis/build/smarie/PyQt5-minimal/Qt5.6.3` and `C:\projects\pyqt5-minimal\Qt5.6.3`). Indeed Qt is known to be very bound to its installation folder's absolute path. However, that will not be a problem if you just use the Qt **libraries** (.dll or .so), which is the case if you use the prebuilt PyQt provided below.
+
+### Installing the PyQt-minimal binary distribution
+
+You need to install the latest `sip` package with conda or pip in order for PyQt to work.
+
+PyQt normal installation procedure would be to extract the selected `PyQt*.tar.gz` anywhere and run `make install` (linux) or `mingw32-make -j 4 install` (windows mingw) in the root directory, in order to install the package in your current python environment. 
+
+However this **does not work** if your folder structure is not the same than the one we use in the Travis/Appveyor continuous integration engine (respectively `/home/travis/build/smarie/PyQt5-minimal/PyQt5.6` and `C:\projects\pyqt5-minimal\PyQt5.6`). Therefore you have to perform the installation manually, that is, to copy the interesting files into your current python environment's `site-packages` folder. For example (assuming current folder is the extracted PyQt archive's root folder):
+
+**Linux**
 ```bash
+# Define the installation folder
 export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python3.5/site-packages/PyQt5"
-mkdir $PYQT_INSTALL_DIR;
-# copy all .so and .pyi files
-find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;
-# copy the main init file
-cp ./__init__.py $PYQT_INSTALL_DIR;
+mkdir ${PYQT_INSTALL_DIR}
+# -- copy all .so, .pyd and .pyi files but not the libxxx.so
+find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;
+# -- copy the main init file
+cp ./__init__.py ${PYQT_INSTALL_DIR}
 ```
 
-*Note: similar to what happens when you perform the normal PyQt installation procedure with `make install`, the PyQt5 package does not appear in the list of packages managed by pip/conda. However you can check that it is available in python: `python -c "import PyQt5.QtCore"` does not throw any ImportError anymore*
+**Windows**
+```cmd
+REM -- Define the installation folder
+set PYQT_INSTALL_DIR="%MINICONDA%/lib/site-packages/PyQt5"
+mkdir %PYQT_INSTALL_DIR%
+REM -- Copy all .pyi and .pyd files
+REM Note: replace %i with %%i if you execute this from inside a .bat file
+for /r %i in (*pyi *pyd) do xcopy /Y "%i" "%PYQT_INSTALL_DIR%"
+REM -- Copy the main init file
+xcopy /Y .\__init__.py "%PYQT_INSTALL_DIR%"
+```
 
-*Note2: you need to install the `sip` package*
+*Note: similar to what happens when you perform the normal PyQt installation procedure with `make install`, the PyQt5 package **will not appear** in the output of `conda list` or `pip list`. However it is still available in python: `python -c "import PyQt5.QtCore"` should not throw any ImportError*
+
 
 ## Qt build options
 
