@@ -96,10 +96,11 @@ after_success:
     sudo tar czvf ${TRAVIS_BUILD_DIR}/dist/PyQt${PYQT_VER}_gpl_py${TRAVIS_PYTHON_VERSION}_${SUF}-with_src.tar.gz PyQt${PYQT_VER}-with_src >/dev/null
 
   # PyQt binaries only (note: we do not include the lib*.so since they dont seem to be needed, they are not copied by the standard pyqt installer)
+  # -not -name "qt*.so"
   - echo "Creating PyQt archive" ;
     mkdir ${PYQT_DIST_DIR} ;
     cd ${PYQT_DIR} ;
-    echo "copy all interesting files *.so *.pyi *.pyd"; find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} ${PYQT_DIST_DIR} \; ;
+    echo "copy all interesting files *.so *.pyi *.pyd"; find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -exec cp {} ${PYQT_DIST_DIR} \; ;
     echo "copy __init__.py"; cp ./__init__.py ${PYQT_DIST_DIR}
   # this was a bad idea we should let the users handle the qt installation + addition to path themselves.
   # echo "copy qt files inside pyqt5"; cd ${TRAVIS_BUILD_DIR}/${QT_DIR}/lib ; find . \( -name "*Core.so*" -o -name "*Gui.so*" -o -name "*Widgets.so*" \) -exec cp {} ${PYQT_DIST_DIR} \; ;
