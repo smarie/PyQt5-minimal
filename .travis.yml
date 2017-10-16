@@ -50,7 +50,7 @@ install:
   - cd "${TRAVIS_BUILD_DIR}"
   - echo ${QT_DIR}
   # only build qt if needed (no cached version yet)
-  # warning NO QUOTES in the test
+  # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
   - echo "Checking cache in $QT_DIR"; if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder ${QT_DIR}";
       ls ${QT_DIR}/lib;
@@ -66,6 +66,7 @@ script:
   - cd "${TRAVIS_BUILD_DIR}"
   - echo ${PYQT_DIR}
   # only build pyqt if needed (no cached version yet)
+  # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
   - echo "Checking cache in $PYQT_DIR"; if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
       echo "Building PyQt from sources using script ${TRAVIS_BUILD_DIR}/ci_tools/build_pyqt.sh";
       rm -rf ${PYQT_DIR};
@@ -100,6 +101,7 @@ after_success:
     cd ${PYQT_DIR} ;
     echo "copy all interesting files *.so *.pyi *.pyd"; find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} ${PYQT_DIST_DIR} \; ;
     echo "copy __init__.py"; cp ./__init__.py ${PYQT_DIST_DIR};
+    echo "copy qt files inside pyqt5"; cd ${TRAVIS_BUILD_DIR}/${QT_DIR}/lib ; find . \( -name "*Core.so*" -o -name "*Gui.so*" -o -name "*Widgets.so*" \) -exec cp {} ${PYQT_DIST_DIR} \; ;
     echo "finally create the archive"; cd ${TRAVIS_BUILD_DIR};
     sudo tar czvf ${TRAVIS_BUILD_DIR}/dist/PyQt${PYQT_VER}_gpl_py${TRAVIS_PYTHON_VERSION}_${SUF}.tar.gz PyQt${PYQT_VER} >/dev/null
 

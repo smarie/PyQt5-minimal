@@ -93,8 +93,9 @@ after_test:
     cd %PYQT_DIR_REL%
     # the for loop seems to include the following lines when this is all in the same command. Splitting.
   - echo "copy all interesting files *.pyi *.pyd" & for /r %%i in (*pyi *pyd) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%"
-  - echo "copy __init__.py" & xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%" &
-    echo "finally create the archive" & cd %APPVEYOR_BUILD_FOLDER% &
+  - echo "copy __init__.py" & xcopy /Y .\__init__.py "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%"
+  - echo "copy qt files inside pyqt5" & cd %APPVEYOR_BUILD_FOLDER%/%QT_DIR_REL%/bin & for /r %%i in (*Core.dll *Gui.dll *Widgets.dll) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%"
+  - echo "finally create the archive" & cd %APPVEYOR_BUILD_FOLDER% &
     7z a -ttar -so PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar.gz
 
 
