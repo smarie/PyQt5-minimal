@@ -8,10 +8,10 @@ python:
 env:
   matrix:
   - QT_VER=5.6.3
-    QT_DIR=${TRAVIS_BUILD_DIR}/Qt${QT_VER}
+    QT_DIR=$TRAVIS_BUILD_DIR/Qt$QT_VER
     PYQT_VER=5.6
-    PYQT_DIR=${TRAVIS_BUILD_DIR}/PyQt${PYQT_VER}-with_src
-    PYQT_DIST_DIR=${TRAVIS_BUILD_DIR}/PyQt${PYQT_VER}
+    PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER-with_src
+    PYQT_DIST_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER
     CACHE_NAME=Qt5.6.3-PyQt5.6
   # - QT_VER=5.9.2 PYQT_VER=5.9 CACHE_NAME=Qt5.9.2-PyQt5.9  >> 5.9 does not work
   global:
@@ -20,8 +20,8 @@ env:
 # cache: pip
 cache:
   directories:
-  - '${QT_DIR}'
-  - '${PYQT_DIR}'
+  - '$QT_DIR'
+  - '$PYQT_DIR'
 
 install:
   - sudo apt-get install pandoc
@@ -47,42 +47,42 @@ install:
   # (c) Compile and install Qt
   # - conda install "qt==5.6.0" >> linked to ICU, too big ! > we end up with a 80Mo package for envswitch
   # => build & install Qt from sources instead:
-  - cd "${TRAVIS_BUILD_DIR}"
-  - echo ${QT_DIR}
+  - cd "$TRAVIS_BUILD_DIR"
+  - echo $QT_DIR
   # only build qt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - echo "Checking cache in $QT_DIR"; if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
-      echo "Qt was already built in a previous run, using cached folder ${QT_DIR}";
-      ls ${QT_DIR}/lib;
+  - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
+      echo "Qt was already built in a previous run, using cached folder $QT_DIR";
+      ls $QT_DIR/lib;
     else
-      echo "Building Qt from sources using script ${TRAVIS_BUILD_DIR}/ci_tools/build_install_qt.sh";
-      rm -rf ${QT_DIR};
-      source "${TRAVIS_BUILD_DIR}/ci_tools/build_install_qt.sh";
+      echo "Building Qt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
+      rm -rf $QT_DIR;
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_install_qt.sh";
     fi
-  - echo "Adding qt directory ${QT_DIR}/bin to path"; export PATH=${QT_DIR}/bin:${PATH}
+  - echo "Adding qt directory $QT_DIR/bin to path"; export PATH=$QT_DIR/bin:$PATH
 
 script:
   # ********* Compile PyQt ***********
-  - cd "${TRAVIS_BUILD_DIR}"
-  - echo ${PYQT_DIR}
+  - cd "$TRAVIS_BUILD_DIR"
+  - echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - echo "Checking cache in $PYQT_DIR"; if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
-      echo "Building PyQt from sources using script ${TRAVIS_BUILD_DIR}/ci_tools/build_pyqt.sh";
-      rm -rf ${PYQT_DIR};
-      source "${TRAVIS_BUILD_DIR}/ci_tools/build_pyqt.sh";
+  - if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
+      echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
+      rm -rf $PYQT_DIR;
+      source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
     else
-      echo "PyQt was already built in a previous run, using cached folder ${PYQT_DIR}";
-      ls ${PYQT_DIR};
+      echo "PyQt was already built in a previous run, using cached folder $PYQT_DIR";
+      ls $PYQT_DIR;
     fi
-  - echo "Installing PyQt to python site-packages"; cd "${PYQT_DIR}"; sudo make install
-#  - echo "Moving PyQt binaries to working directory"; mkdir ${TRAVIS_BUILD_DIR}/PyQt5; cd ${PYQT_DIR}; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} ${TRAVIS_BUILD_DIR}/PyQt5 \;
+  - echo "Installing PyQt to python site-packages"; cd "$PYQT_DIR"; sudo make install
+#  - echo "Moving PyQt binaries to working directory"; mkdir $TRAVIS_BUILD_DIR/PyQt5; cd $PYQT_DIR; find . \( -name "*so" -o -name "*pyi" \) -not -name "lib*" -exec cp {} $TRAVIS_BUILD_DIR/PyQt5 \;
 #  - pip install .
 
 after_success:
   # ***packaging for releases***
   - echo "Creating the appropriate archives into dist/" ;
-    cd ${TRAVIS_BUILD_DIR};
+    cd $TRAVIS_BUILD_DIR;
     mkdir dist;
     export SUF=minimal-Linux-x86_64
 
