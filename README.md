@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/smarie/PyQt5-minimal.svg?branch=Qt5.6.3_PyQt_5.6_Python3.5)](https://travis-ci.org/smarie/PyQt5-minimal)[![Build status](https://ci.appveyor.com/api/projects/status/5v9xec097c99h8ox?svg=true)](https://ci.appveyor.com/project/smarie/pyqt5-minimal)
 
-A set of build scripts for the Travis and Appveyor continuous integration engines, so as to build a minimal version of the Qt LGPL and PyQt5 GPL packages for linux64 and windows (currently mingw64, TODO MSVC2015).
+A set of build scripts for the Travis and Appveyor continuous integration engines, so as to build a minimal version of the Qt LGPL and PyQt5 GPL packages for linux64 and windows (currently mingw64, *todo* MSVC2015).
 
 #### Main purpose: (much) smaller cx-frozen PyQt applications  
 
@@ -33,12 +33,12 @@ In the [releases page](https://github.com/smarie/PyQt5-minimal/releases) you wil
 
 * `Qt*.tar.gz` files are Qt binary distributions created in the build process, build with the 'minimal' options described below. 
 
-* `PyQt*.tar.gz` files are PyQt 'ready-to-install' distributions.
+* `PyQt*.tar.gz` files are PyQt binary distributions that depend on the corresponding Qt distributions. For the linux version, this dependency is based on an absolute path so Qt needs to be installed at a precise location. On windows this dependency is only based on Qt being on the environment's PATH. However on windows, msys2+mingw64 also needs to be on the PATH, see below.
 
 
 ### Windows only: install msys2-mingw64
 
-The windows version of PyQt5-minimal is currently built using msys2-mingw64. You will therefore need to have this on your path for it to be able to load. Once downloaded from the latest msys2 sources to `C:\msys64`, 
+The windows version of PyQt5-minimal is currently built using msys2-mingw64. You will therefore need to have it on your path for it to be able to load. Once downloaded from the latest msys2 sources to `C:\msys64`, 
 
  * create a msys2 environment launcher by creating a commandline script:
  
@@ -51,7 +51,7 @@ set "PATH=%MINICONDA%;%MINICONDA%\Scripts;%MSYS2_DIR%\%MSYSTEM%\bin;%MSYS2_DIR%\
 start cmd /k echo %PATH%
 ```
 
-You will have to open a commandline using this script to use PyQt5. Note: modify the above script if your python distribution is not miniconda3 or is not at this path.
+You will have to open a commandline using this script to use PyQt5. Note: modify the above script if your python distribution is not miniconda3 or is not at this path. Also if you need git,  modify the path above to add your usual git first in the path, otherwise it will be shadowed by the one inside msys2, leading to git errors about already cloned repositories.
 
  * execute the following commands from inside the command window launched by the above, the first time. This will update msys2 and update your environment.
 
@@ -66,8 +66,6 @@ bash -lc "pacman -Su --noconfirm"
 echo "-- load MinGW-w64 SEH (64bit/x86_64) posix and Dwarf-2 (32bit/i686) posix toolchains & related other tools, dependencies & components from MSYS2 REPO"
 bash -lc "pacman -S --needed --noconfirm base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain"
 ```
-
-TODO maybe some of these packages are not actually needed, to check.
 
 
 ### Installing the Qt-minimal binary distribution
@@ -85,7 +83,7 @@ On linux targets the dependency between PyQt and Qt is absolute. You therefore h
 
 ### Installing the PyQt-minimal binary distribution
 
-You need to install the latest `sip` package with conda or pip in order for PyQt to work.
+You need to install the latest `sip` package (4.18+) with conda or pip in order for PyQt to work.
 
 PyQt normal installation procedure would be to extract the selected `PyQt*.tar.gz` anywhere and run `make install` (linux) or `mingw32-make -j 4 install` (windows mingw) in the root directory, in order to install the package in your current python environment. 
 
@@ -96,7 +94,7 @@ However this **does not work** if your folder structure is not the same than the
 # Define the installation folder
 export PYQT_INSTALL_DIR="$HOME/miniconda/lib/python3.5/site-packages/PyQt5"
 mkdir ${PYQT_INSTALL_DIR}
-# -- copy all .so, .pyd and .pyi files but not the libxxx.so
+# -- copy all .so, .pyd and .pyi files but not the libxxx.so, it is not used
 find . \( -name "*so" -o -name "*pyi" -o -name "*pyd" \) -not -name "lib*" -exec cp {} $PYQT_INSTALL_DIR \;
 # -- copy the main init file
 cp ./__init__.py ${PYQT_INSTALL_DIR}
@@ -119,7 +117,7 @@ xcopy /Y .\__init__.py "%PYQT_INSTALL_DIR%"
 
 ## Qt build options
 
-The build options currently used to build Qt are
+For reference, the build options currently used to build Qt5.6.3-minimal are
 
 ```bash
 -opensource -confirm-license \
@@ -130,7 +128,7 @@ The build options currently used to build Qt are
 
 ## PyQt build options
 
-The build options currently used to build PyQt are
+For reference, the build options currently used to build PyQt5.6-minimal are
 
 ```bash
 --confirm-license \
@@ -138,4 +136,8 @@ The build options currently used to build PyQt are
 --disable QtHelp --disable QtMultimedia --disable QtMultimediaWidgets --disable QtNetwork --disable QtOpenGL --disable QtPrintSupport --disable QtQml --disable QtQuick --disable QtSql --disable QtSvg --disable QtTest --disable QtWebKit --disable QtWebKitWidgets --disable QtXml --disable QtXmlPatterns --disable QtDesigner --disable QAxContainer --disable QtDBus --disable QtWebSockets --disable QtWebChannel --disable QtNfc --disable QtBluetooth --disable QtX11Extras --disable QtQuickWidgets --disable _QOpenGLFunctions_2_0 --disable _QOpenGLFunctions_2_1 --disable _QOpenGLFunctions_4_1_Core
 ```
 
-Note: PyQt is patched so that Makefiles generated by Qt are able to find the libraries. Indeed the generated makefiles only contain `-rpath` which seems not sufficient for the linker to find the libraries - we therefore add `-L`. This may be linked to the following [issue](https://forum.qt.io/topic/59670/how-to-compile-qt-with-relative-runpath-paths) ? The patch file used can be found in `ci_tools/`, there is one per version.
+Notes: 
+
+ * on linux, PyQt is patched so that Makefiles generated by Qt's qmake are able to find the libraries. Indeed the generated makefiles only contain `-rpath` which seems not sufficient for the linker to find the libraries - we therefore add `-L`. This may be linked to the following [issue](https://forum.qt.io/topic/59670/how-to-compile-qt-with-relative-runpath-paths) ? The patch file used can be found in `ci_tools/`, there is one per version.
+
+ * On windows PyQt is patched so that Makefiles generated by Qt's qmake contain an additional CXXFLAG -D_hypot=hypot to fix an issue with mingw64's math library.
