@@ -35,6 +35,8 @@ In the [releases page](https://github.com/smarie/PyQt5-minimal/releases) you wil
 
 * `PyQt*.tar.gz` files are PyQt binary distributions that depend on the corresponding Qt distributions. For the linux version, this dependency is based on an absolute path so Qt needs to be installed at a precise location. On windows this dependency is only based on Qt being on the environment's PATH. However on windows, msys2+mingw64 also needs to be on the PATH, see below.
 
+* `PyQt*-with_src.tar.gz` files are PyQt src + binary distributions, just for reference.
+
 
 ### Windows only: install msys2-mingw64
 
@@ -85,9 +87,25 @@ On linux targets the dependency between PyQt and Qt is absolute. You therefore h
 
 You need to install the latest `sip` package (4.18+) with conda or pip in order for PyQt to work.
 
-PyQt normal installation procedure would be to extract the selected `PyQt*.tar.gz` anywhere and run `make install` (linux) or `mingw32-make -j 4 install` (windows mingw) in the root directory, in order to install the package in your current python environment. 
+#### Fast way
 
-However this **does not work** if your folder structure is not the same than the one we use in the Travis/Appveyor continuous integration engine (respectively `/home/travis/build/smarie/PyQt5-minimal/PyQt5.6` and `C:\projects\pyqt5-minimal\PyQt5.6`). Therefore you have to perform the installation manually, that is, to copy the interesting files into your current python environment's `site-packages` folder. For example (assuming current folder is the extracted PyQt archive's root folder):
+Simply extract the contents of the binary distribution `PyQt*.tar.gz` directly into the desired python environment's `site-packages` folder. This should create a folder named `PyQt5` in here. You can check that the installation was correct with the following bash command, that should execute without throwing any dll import error.
+
+```bash
+python -c "import PyQt5.QtCore"
+```
+
+If the above raises a library import error, it might be because QT can not be imported correctly OR because msys2 (on windows) can not be imported correctly.
+
+*Note: similar to what happens when you perform the standard PyQt installation procedure, the PyQt5 package **will not appear** in the output of `conda list` or `pip list`.*
+
+#### Standard way
+
+PyQt normal installation procedure would be to extract the selected `PyQt*-with_src.tar.gz` anywhere and run `make install` (linux) or `mingw32-make -j 4 install` (windows mingw) in the root directory, in order to install the package in your current python environment. 
+
+However this **does not work** if your folder structure is not the same than the one we use in the Travis/Appveyor continuous integration engine (respectively `/home/travis/build/smarie/PyQt5-minimal/PyQt5.6` and `C:\projects\pyqt5-minimal\PyQt5.6`). Therefore you have to perform the installation manually, that is, to copy the interesting files into your current python environment's `site-packages` folder. 
+
+For example (assuming current folder is the extracted PyQt archive's root folder):
 
 **Linux**
 ```bash
@@ -113,7 +131,6 @@ xcopy /Y .\__init__.py "%PYQT_INSTALL_DIR%"
 ```
 
 *Note: similar to what happens when you perform the normal PyQt installation procedure with `make install`, the PyQt5 package **will not appear** in the output of `conda list` or `pip list`. However it is still available in python: `python -c "import PyQt5.QtCore"` should not throw any ImportError*
-
 
 ## Qt build options
 
