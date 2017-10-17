@@ -99,7 +99,9 @@ after_test:
   # besides there are also the msys2 dependencies to install.
   # If one day we want to be able to ship like 'conda install' then we will need to recompilet against MSVC and to ship also a Qt wheel (see conda)
   #- echo "copy qt files inside pyqt5" & cd %APPVEYOR_BUILD_FOLDER%/%QT_DIR_REL%/bin & for /r %%i in (*Core.dll *Gui.dll *Widgets.dll) do xcopy /Y "%%i" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%"
-  - echo "copy qt platform file inside pyqt5" & mkdir "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%/platforms" & xcopy %APPVEYOR_BUILD_FOLDER%/%QT_DIR_REL%/plugins/platforms/qwindows.dll "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%/platforms"
+#  - echo "copy qt platform file inside pyqt5"
+#  - mkdir "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%/platforms"
+#  - xcopy "%APPVEYOR_BUILD_FOLDER%/%QT_DIR_REL%/plugins/platforms/qwindows.dll" "%APPVEYOR_BUILD_FOLDER%/%PYQT_DIST_REL%/platforms"
   - echo "finally create the archive" & cd %APPVEYOR_BUILD_FOLDER% &
     7z a -ttar -so PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar %PYQT_DIST_REL% | 7z a -si dist/PyQt%PYQT_VER%_gpl_py%PYTHON_VERSION%_%SUF%.tar.gz
 

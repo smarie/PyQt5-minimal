@@ -106,7 +106,7 @@ after_success:
   # this was a bad idea we should let the users handle the qt installation + addition to path themselves.
   # echo "copy qt files inside pyqt5"; cd ${TRAVIS_BUILD_DIR}/${QT_DIR}/lib ; find . \( -name "*Core.so*" -o -name "*Gui.so*" -o -name "*Widgets.so*" \) -exec cp {} ${PYQT_DIST_DIR} \; ;
   - echo "finally create the archive"; cd ${TRAVIS_BUILD_DIR};
-    sudo tar czvf ${TRAVIS_BUILD_DIR}/dist/PyQt${PYQT_VER}_gpl_py${TRAVIS_PYTHON_VERSION}_${SUF}.tar.gz PyQt${PYQT_VER} >/dev/null
+    sudo tar czvf ${TRAVIS_BUILD_DIR}/dist/PyQt${PYQT_VER}_gpl_py${TRAVIS_PYTHON_VERSION}_${SUF}.tar.gz PyQt5 >/dev/null
 
   - ls dist
 #
