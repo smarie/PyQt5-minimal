@@ -11,8 +11,7 @@ env:
     QT_DIR=$TRAVIS_BUILD_DIR/Qt$QT_VER
     PYQT_VER=5.6
     PYQT_DIR=$TRAVIS_BUILD_DIR/PyQt$PYQT_VER-with_src
-    # This folder has to have the same same than the python package !
-    PYQT_DIST_DIR=$TRAVIS_BUILD_DIR/PyQt5
+    PYQT_DIST_DIR=$TRAVIS_BUILD_DIR/PyQt5  # This folder should have the same same than the python package
     CACHE_NAME=Qt5.6.3-PyQt5.6
   # - QT_VER=5.9.2 PYQT_VER=5.9 CACHE_NAME=Qt5.9.2-PyQt5.9  >> 5.9 does not work
   global:
