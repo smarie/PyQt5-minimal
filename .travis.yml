@@ -52,7 +52,7 @@ install:
   - echo $QT_DIR
   # only build qt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
+  - if ls $QT_DIR/lib-NOCACHE/*.so 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder $QT_DIR";
       ls $QT_DIR/lib;
     else
@@ -68,7 +68,7 @@ script:
   - echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
+  - if [ ! -f $PYQT_DIR/QtGui-NOCACHE.pyi ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
       rm -rf $PYQT_DIR;
       source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
@@ -93,7 +93,6 @@ after_success:
 
   # PyQt sources+binaries
   - echo "Creating PyQt+src archive" ;
-    export PYQT_SUF=_gpl_%SUF% ;
     sudo tar czvf ${TRAVIS_BUILD_DIR}/dist/PyQt${PYQT_VER}_gpl_py${TRAVIS_PYTHON_VERSION}_${SUF}-with_src.tar.gz PyQt${PYQT_VER}-with_src >/dev/null
 
   # PyQt binaries only (note: we do not include the lib*.so since they dont seem to be needed, they are not copied by the standard pyqt installer)
