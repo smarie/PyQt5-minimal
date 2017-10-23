@@ -52,7 +52,7 @@ install:
   - echo $QT_DIR
   # only build qt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - if ls $QT_DIR/lib-NOCACHE/*.so 1> /dev/null 2>&1; then
+  - if ls $QT_DIR/lib/*.so 1> /dev/null 2>&1; then
       echo "Qt was already built in a previous run, using cached folder $QT_DIR";
       ls $QT_DIR/lib;
     else
@@ -68,7 +68,7 @@ script:
   - echo $PYQT_DIR
   # only build pyqt if needed (no cached version yet)
   # !!!! warning NO QUOTES and NO CURLY BRACES in the test !!!!
-  - if [ ! -f $PYQT_DIR/QtGui-NOCACHE.pyi ]; then
+  - if [ ! -f $PYQT_DIR/QtGui.pyi ]; then
       echo "Building PyQt from sources using script $TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
       rm -rf $PYQT_DIR;
       source "$TRAVIS_BUILD_DIR/ci_tools/build_pyqt.sh";
